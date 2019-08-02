@@ -15,5 +15,5 @@ RUN cd ${AzureWebJobsScriptRoot} && \
 RUN cd ${AzureWebJobsScriptRoot} && \
     npm run build
 
-CMD npm run start
+CMD npm install && npm run start
 
