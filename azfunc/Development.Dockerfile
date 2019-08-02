@@ -1,11 +1,16 @@
 ### STAGE 1: Development ###
 
 # Image defaults:
-FROM node:10 as az-function-development
+FROM mcr.microsoft.com/dotnet/core/sdk:2.1 as az-function-development
 ENV AZURE_FUNCTIONS_ENVIRONMENT=Development
 ENV AzureWebJobsSecretStorageType=Files
 SHELL ["/bin/bash", "-c"]
 CMD func start
+
+# Install node.JS:
+RUN apt-get update && \
+    curl -sL https://deb.nodesource.com/setup_10.x | bash && \
+    apt-get install nodejs
 
 WORKDIR /azfunc
 # Prepare Az Functions Dev Enviroment

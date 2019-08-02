@@ -7,6 +7,6 @@ services:
           dockerfile: Development.Dockerfile
     image: azfunc_dev
     volumes:
-    - ./:/home/site/wwwroot
+    - ./:/azfunc
     ports: 
       - "7071:7071" 
