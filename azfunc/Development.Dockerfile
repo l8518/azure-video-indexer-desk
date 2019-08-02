@@ -14,7 +14,7 @@ RUN apt-get update && \
     curl -O https://dot.net/v1/dotnet-install.sh && \
     source dotnet-install.sh --channel Current && \
     rm dotnet-install.sh && \
-    npm i -g azure-functions-core-tools@core --unsafe-perm true && \
+    npm i -g azure-functions-core-tools@2.7 --unsafe-perm true && \
     func extensions install
 
 # NPM Install Stuff
