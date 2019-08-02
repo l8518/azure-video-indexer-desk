@@ -1,5 +1,7 @@
 local.settings.json
 bin
+node_modules
+
 # Docker files
 Development.Dockerfile
 Dockerfile
