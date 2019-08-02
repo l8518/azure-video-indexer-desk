@@ -1,0 +1,12 @@
+version: '3.4'
+
+services:
+  app:
+    build:
+          context: .
+          dockerfile: Development.Dockerfile
+    image: azfunc_dev
+    volumes:
+    - ./:/home/site/wwwroot
+    ports: 
+      - "7071:7071" 

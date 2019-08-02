@@ -1,0 +1,7 @@
+local.settings.json
+bin
+# Docker files
+Development.Dockerfile
+Dockerfile
+docker-compose.production-build.yml
+docker-compose.yml

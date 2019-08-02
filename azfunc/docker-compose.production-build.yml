@@ -1,0 +1,11 @@
+version: '3.4'
+
+services:
+  app:
+    build:
+          context: .
+          dockerfile: Dockerfile
+          target: az-function-production
+    image: azfunc_prod
+    ports: 
+      - "80:80" 
