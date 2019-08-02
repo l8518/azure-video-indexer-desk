@@ -1,19 +1,26 @@
-FROM mcr.microsoft.com/azure-functions/node:2.0 AS az-function-development
+### STAGE 1: Development ###
 
-ENV AzureWebJobsScriptRoot=/home/site/wwwroot \
-    AzureFunctionsJobHost__Logging__Console__IsEnabled=true
+# Image defaults:
+FROM node:10 as az-function-development
+ENV AZURE_FUNCTIONS_ENVIRONMENT=Development
+ENV AzureWebJobsSecretStorageType=Files
+SHELL ["/bin/bash", "-c"]
+CMD func start
 
-RUN npm i -g azure-functions-core-tools@2.7 --unsafe-perm true
+WORKDIR /azfunc
+# Prepare Az Functions Dev Enviroment
+COPY host.json host.json
+RUN apt-get update && \
+    curl -O https://dot.net/v1/dotnet-install.sh && \
+    source dotnet-install.sh --channel Current && \
+    rm dotnet-install.sh && \
+    npm i -g azure-functions-core-tools@core --unsafe-perm true && \
+    func extensions install
 
-WORKDIR ${AzureWebJobsScriptRoot}
+# NPM Install Stuff
+COPY package.json ./package.json
+COPY package-lock.json ./package-lock.json
+RUN npm install
 
-COPY . ${AzureWebJobsScriptRoot} 
-
-RUN cd ${AzureWebJobsScriptRoot} && \
-    npm install
-
-RUN cd ${AzureWebJobsScriptRoot} && \
-    npm run build
-
-CMD npm install && npm run start
-
+# Copy the Az Funcs Source
+COPY . .
