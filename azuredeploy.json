@@ -4,13 +4,18 @@
     "parameters": {
         "name": {
             "type": "string"
+        },
+        "eventgrid_secret": {
+            "type": "securestring"
         }
     },
     "variables": {
         "functionAppName": "[parameters('name')]",
         "applicationInsightsName": "[parameters('name')]",
         "storageAccountName": "[concat(parameters('name'), uniquestring(resourceGroup().id))]",
-        "dropInStorageAccountName": "[concat('dropin' , uniquestring(resourceGroup().id))]"
+        "dropInStorageAccountName": "[concat('dropin' , uniquestring(resourceGroup().id))]",
+        "FunctionName": "IndexNewUploadedFile",
+        "functionUrl": "[concat('https://', variables('FunctionAppName'),'.azurewebsites.net/runtime/webhooks/eventgrid?functionName=', variables('FunctionName'),'&code=')]"
     },
     "resources": [
         {
@@ -48,6 +53,20 @@
                 "clientAffinityEnabled": false,
                 "reserved": true
             },
+            "resources": [
+                {
+                    "name": "default/eventgrid_extension",
+                    "apiVersion": "2018-11-01",
+                    "type": "host/systemkeys",
+                    "properties": {
+                        "name": "eventgrid_extension",
+                        "value": "[parameters('eventgrid_secret')]"
+                    },
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Web/sites', variables('functionAppName'))]"
+                    ]
+                }
+            ],
             "dependsOn": [
                 "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]",
                 "[resourceId('Microsoft.Insights/components', variables('applicationInsightsName'))]"
@@ -55,6 +74,7 @@
         },
         {
             "type": "Microsoft.Storage/storageAccounts",
+            "kind": "StorageV2",
             "apiVersion": "2019-04-01",
             "name": "[variables('storageAccountName')]",
             "location": "[resourceGroup().location]",
@@ -64,6 +84,7 @@
         },
         {
             "type": "Microsoft.Storage/storageAccounts",
+            "kind": "StorageV2",
             "apiVersion": "2019-04-01",
             "name": "[variables('dropInStorageAccountName')]",
             "location": "[resourceGroup().location]",
@@ -93,6 +114,43 @@
                 "ApplicationId": "[variables('functionAppName')]",
                 "Request_Source": "rest"
             }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/providers/eventSubscriptions",
+            "name": "[concat(variables('dropInStorageAccountName'), '/Microsoft.EventGrid/', 'filedrop')]",
+            "location": "[resourceGroup().location]",
+            "apiVersion": "2019-06-01",
+            "properties": {
+                "topic": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Storage/StorageAccounts/', variables('dropInStorageAccountName'))]",
+                "destination": {
+                    "endpointType": "WebHook",
+                    "properties": {
+                        "endpointUrl": "[concat(variables('functionUrl'), listKeys(resourceId('Microsoft.Web/sites/host/', variables('functionAppName'), 'default'),'2016-08-01').systemkeys.eventgrid_extension)]"
+                    }
+                },
+                "filter": {
+                    "includedEventTypes": [
+                        "Microsoft.Storage.BlobCreated"
+                    ],
+                    "advancedFilters": [
+                        {
+                            "operatorType": "StringBeginsWith",
+                            "key": "subject",
+                            "values": [
+                                "/blobServices/default/containers/drop/"
+                            ]
+                        }
+                    ]
+                },
+                "labels": [
+                    "[concat('functions-', toLower(variables('FunctionName')))]"
+                ],
+                "eventDeliverySchema": "EventGridSchema"
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', variables('functionAppName'))]",
+                "[resourceId('Microsoft.Web/sites/host/systemkeys', variables('functionAppName'),'default','eventgrid_extension')]"
+            ]
         }
     ]
 }
