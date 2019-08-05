@@ -9,8 +9,8 @@
     "variables": {
         "functionAppName": "[parameters('name')]",
         "applicationInsightsName": "[parameters('name')]",
-        "storageAccountName": "[concat(uniquestring(resourceGroup().id), parameters('name'))]",
-        "dropInStorageAccountName": "[concat(uniquestring(resourceGroup().id), 'dropin')]"
+        "storageAccountName": "[concat(parameters('name'), uniquestring(resourceGroup().id))]",
+        "dropInStorageAccountName": "[concat('dropin' , uniquestring(resourceGroup().id))]"
     },
     "resources": [
         {
