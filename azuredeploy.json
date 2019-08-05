@@ -49,6 +49,14 @@
                         {
                             "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
                             "value": "[reference(concat('microsoft.insights/components/', variables('applicationInsightsName')), '2015-05-01').InstrumentationKey]"
+                        },
+                        {
+                            "name": "STORAGE_ACC_NAME",
+                            "value": "[variables('dropInStorageAccountName')]"
+                        },
+                        {
+                            "name": "STORAGE_KEY",
+                            "value": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('dropInStorageAccountName')), '2015-05-01-preview').key1]"
                         }
                     ]
                 },

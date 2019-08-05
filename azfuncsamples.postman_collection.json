@@ -1,0 +1,50 @@
+{
+	"info": {
+		"_postman_id": "e408d518-ad4a-423c-b96b-34ba8f7ed9cc",
+		"name": "azfuncsamples",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "localhost:7071/runtime/webhooks/eventgrid?functionName=IndexNewUploadedFile",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "aeg-event-type",
+						"value": "Notification ",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{ \"topic\":\"/subscriptions/XXXXXXXXXXX/resourceGroups/hlnf/providers/Microsoft.Storage/storageAccounts/XXXX\",\r\n  \"subject\":\"/blobServices/default/containers/drop/blobs/SampleVideo_1280x720_1mb.mp4\",\r\n  \"eventType\":\"Microsoft.Storage.BlobCreated\",\r\n  \"eventTime\":\"2019-08-05T15:05:35.755102Z\",\r\n  \"id\":\"915b6290-401e-00a3-029f-4b45d8067cee\",\r\n  \"data\": \r\n   { \"api\":\"PutBlockList\",\r\n     \"clientRequestId\":\"e2ed455d-c0b5-40a0-b5fb-6a20ad7d20b7\",\r\n     \"requestId\":\"915b6290-401e-00a3-029f-4b45d8000000\",\r\n     \"eTag\":\"0x8D719B65E915A91\",\r\n     \"contentType\":\"video/mp4\",\r\n     \"contentLength\": 1055736,\r\n     \"blobType\":\"BlockBlob\",\r\n     \"url\":\"https://dropinssony54mcb4he.blob.core.windows.net/drop/SampleVideo_1280x720_1mb.mp4\",\r\n     \"sequencer\":\"000000000000000000000000000014380000000002705bd7\",\r\n     \"storageDiagnostics\": { \"batchId\":\"372b9e99-3006-002f-009f-4b2dd6000000\" } },\r\n  \"dataVersion\": \"\",\r\n  \"metadataVersion\":\"1\" }"
+				},
+				"url": {
+					"raw": "localhost:7071/runtime/webhooks/eventgrid?functionName=IndexNewUploadedFile",
+					"host": [
+						"localhost"
+					],
+					"port": "7071",
+					"path": [
+						"runtime",
+						"webhooks",
+						"eventgrid"
+					],
+					"query": [
+						{
+							"key": "functionName",
+							"value": "IndexNewUploadedFile"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
