@@ -1,30 +1,24 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
+    "$schema": "http://schema.management.azure.com/schemas/2018-05-01/deploymentTemplate.json#",
     "parameters": {
-        "functionName": {
+        "name": {
             "type": "string"
-        },
-        "functionStorageName": {
-            "type": "string"
-        },
-        "functionPackageURL": {
-            "type": "string",
-            "metadata": {
-                "description": "URL of the function app package."
-            }
-        }   
+        }
     },
     "variables": {
-        "function_insights_name": "[concat(parameters('functionName'), 'insights')]",
-        "Owner": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', '8e3af657-a8ff-443c-a75c-2fe8c4bcb635')]",
-        "Contributor": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
-        "Reader": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', 'acdd72a7-3385-48ef-bd42-f606fba81ae7')]"
+        "functionAppName": "[parameters('name')]",
+        "applicationInsightsName": "[parameters('name')]",
+        "storageAccountName": "[concat(uniquestring(resourceGroup().id), parameters('name'))]",
+        "dropInStorageAccountName": "[concat(uniquestring(resourceGroup().id), 'dropin')]"
     },
     "resources": [
         {
-            "name": "[parameters('functionName')]",
             "type": "Microsoft.Web/sites",
+            "kind": "functionapp,linux",
+            "name": "[parameters('name')]",
+            "apiVersion": "2016-08-01",
+            "location": "[resourceGroup().location]",
             "properties": {
                 "siteConfig": {
                     "appSettings": [
@@ -34,19 +28,11 @@
                         },
                         {
                             "name": "AzureWebJobsStorage",
-                            "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',parameters('functionStorageName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('functionStorageName')), '2015-05-01-preview').key1)]"
+                            "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('storageAccountName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2015-05-01-preview').key1)]"
                         },
                         {
                             "name": "FUNCTIONS_EXTENSION_VERSION",
                             "value": "~2"
-                        },
-                        {
-                            "name": "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING",
-                            "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',parameters('functionStorageName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('functionStorageName')), '2015-05-01-preview').key1)]"
-                        },
-                        {
-                            "name": "WEBSITE_CONTENTSHARE",
-                            "value": "[concat(toLower(parameters('functionName')), '9638')]"
                         },
                         {
                             "name": "WEBSITE_NODE_DEFAULT_VERSION",
@@ -54,53 +40,58 @@
                         },
                         {
                             "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
-                            "value": "[reference( concat('Microsoft.Insights/components/', variables('function_insights_name')), '2015-05-01').InstrumentationKey]"
+                            "value": "[reference(concat('microsoft.insights/components/', variables('applicationInsightsName')), '2015-05-01').InstrumentationKey]"
                         }
                     ]
                 },
-                "name": "[parameters('functionName')]",
+                "name": "[variables('functionAppName')]",
                 "clientAffinityEnabled": false,
-                "reserved": false
+                "reserved": true
             },
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('functionStorageName'))]",
-                "[concat('Microsoft.Insights/components/', variables('function_insights_name'))]"
-            ],
-            "apiVersion": "2015-08-01",
-            "location": "[resourceGroup().location]",
-            "kind": "functionapp",
-            "resources": [
-                {
-                    "name": "MSDeploy",
-                    "type": "extensions",
-                    "location": "[resourceGroup().location]",
-                    "apiVersion": "2015-08-01",
-                    "dependsOn": [
-                        "[concat('Microsoft.Web/sites/', parameters('functionName'))]"
-                    ],
-                    "properties": {
-                        "packageUri": "[parameters('functionPackageURL')]"
-                    }
-                }
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]",
+                "[resourceId('Microsoft.Insights/components', variables('applicationInsightsName'))]"
             ]
         },
         {
-            "apiVersion": "2015-05-01-preview",
             "type": "Microsoft.Storage/storageAccounts",
-            "name": "[parameters('functionStorageName')]",
+            "apiVersion": "2019-04-01",
+            "name": "[variables('storageAccountName')]",
             "location": "[resourceGroup().location]",
-            "properties": {
-                "accountType": "Standard_LRS"
+            "sku": {
+                "name": "Standard_LRS"
             }
         },
         {
-            "apiVersion": "2015-05-01",
-            "name": "[variables('function_insights_name')]",
-            "type": "Microsoft.Insights/components",
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2019-04-01",
+            "name": "[variables('dropInStorageAccountName')]",
             "location": "[resourceGroup().location]",
+            "sku": {
+                "name": "Standard_LRS"
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+            "apiVersion": "2019-04-01",
+            "name": "[concat(variables('dropInStorageAccountName'), '/default/drop')]",
+            "dependsOn": [
+                "[variables('dropInStorageAccountName')]"
+            ],
             "properties": {
-                "ApplicationId": "[parameters('functionName')]",
-                "Request_Source": "IbizaWebAppExtensionCreate"
+                "publicAccess": "None"
+            }
+        },
+        {
+            "type": "Microsoft.Insights/components",
+            "apiVersion": "2015-05-01",
+            "name": "[variables('applicationInsightsName')]",
+            "location": "[resourceGroup().location]",
+            "kind": "web",
+            "properties": {
+                "Application_Type": "other",
+                "ApplicationId": "[variables('functionAppName')]",
+                "Request_Source": "rest"
             }
         }
     ]
