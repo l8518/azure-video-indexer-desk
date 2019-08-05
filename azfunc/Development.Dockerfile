@@ -5,7 +5,7 @@ FROM mcr.microsoft.com/dotnet/core/sdk:2.1 as az-function-development
 ENV AZURE_FUNCTIONS_ENVIRONMENT=Development
 ENV AzureWebJobsSecretStorageType=Files
 SHELL ["/bin/bash", "-c"]
-CMD func start
+CMD npm run start
 
 # Install node.JS:
 RUN apt-get update && \
