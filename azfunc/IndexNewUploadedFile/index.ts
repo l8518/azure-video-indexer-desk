@@ -40,7 +40,8 @@ const eventGridTrigger: AzureFunction = async function (context: Context, eventG
 
     const uriComponents = fileInputUrl.split("/");
     const blobName = uriComponents.pop();
-    const videoName = `${blobName}-${createdAt.toISOString()}`
+    const trimmedBlobName = blobName.substr(0, Math.min(50, blobName.length));
+    const videoName = `${trimmedBlobName}-${createdAt.toISOString()}`
 
     let storageSASParams = getSASString(storageSharedKeyCredential);
     let sourceURIWithSAS = `${fileInputUrl}?${storageSASParams}`;
