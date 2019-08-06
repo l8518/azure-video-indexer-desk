@@ -1,8 +1,13 @@
 import { AzureFunction, Context } from "@azure/functions";
-import { SharedKeyCredential, generateAccountSASQueryParameters, SASQueryParameters, AccountSASPermissions, AccountSASResourceTypes, AccountSASServices} from "@azure/storage-blob";
+import { SharedKeyCredential, generateAccountSASQueryParameters, SASQueryParameters, AccountSASPermissions, AccountSASResourceTypes, AccountSASServices, StorageURL, BlobURL, Aborter} from "@azure/storage-blob";
+import axios, { AxiosRequestConfig } from "axios";
 
 const STORAGE_ACC_NAME = process.env["STORAGE_ACC_NAME"];
 const STORAGE_KEY = process.env["STORAGE_KEY"];
+const VIDEO_INDEXER_ACCOUNT_ID = process.env["VIDEO_INDEXER_ACCOUNT_ID"];
+const VIDEO_INDEXER_SUBSCRIPTION_KEY = process.env["VIDEO_INDEXER_SUBSCRIPTION_KEY"];
+const VIDEO_INDEXER_REGION = process.env["VIDEO_INDEXER_REGION"];
+const VIDEO_INDEXER_DEFAULT_LANGUAGE = "German" || process.env["VIDEO_INDEXER_DEFAULT_LANGUAGE"];
 
 /**
  * This AZ Function triggers the Azure Media Service to encode a uploaded file automatically.
@@ -19,9 +24,24 @@ const eventGridTrigger: AzureFunction = async function (context: Context, eventG
     }
 
     // Construct input params
-    let fileInputUrl : string = eventGridEvent.data.url;
+    const fileInputUrl : string = eventGridEvent.data.url;
+    const fileContentType : string = eventGridEvent.data.contentType;
 
     const storageSharedKeyCredential = new SharedKeyCredential(STORAGE_ACC_NAME, STORAGE_KEY);
+
+    const storagePipeline = StorageURL.newPipeline(storageSharedKeyCredential);
+    const blob = new BlobURL(fileInputUrl, storagePipeline)
+    const blobProperties = await blob.getProperties(Aborter.none, {});
+    const createdAt = blobProperties.creationTime;
+
+    // Determine the language of the video, if possible.
+    const languageProp = blobProperties.metadata['audio_language'];
+    const videoLanguage = ( ["German", "English"].includes(languageProp) ? languageProp : VIDEO_INDEXER_DEFAULT_LANGUAGE)
+
+    const uriComponents = fileInputUrl.split("/");
+    const blobName = uriComponents.pop();
+    const videoName = `${blobName}-${createdAt.toISOString()}`
+
     let storageSASParams = getSASString(storageSharedKeyCredential);
     let sourceURIWithSAS = `${fileInputUrl}?${storageSASParams}`;
     context.log(sourceURIWithSAS)
@@ -30,11 +50,62 @@ const eventGridTrigger: AzureFunction = async function (context: Context, eventG
         body: sourceURIWithSAS
     };
 
-    // TODO: Add the VI Encoding Functions
+    // Get VI Access Token:
+    let videoIndexerAccessToken;
+    try {
+        videoIndexerAccessToken = await getVideoIndexerAccessToken();
+    }
+    catch (error) {
+        context.log(error);
+        return context.done("Failed to retrieve VI access token.");
+    }
 
-
+    // Trigger Video Indexer:
+    let triggerResult;
+    try {
+        triggerResult = await triggerVideoIndexer(videoIndexerAccessToken, videoName, videoLanguage , sourceURIWithSAS, fileContentType);
+    }
+    catch (error) {
+        context.log(error);
+    }
+    context.log(triggerResult.id);
     return context.done();
 };
+
+/**
+ * Call the VI API to retrieve an access token.
+ * @returns An access token for the Video Indexer
+ */
+async function getVideoIndexerAccessToken() {
+
+    const ENDPOINT : string = `https://api.videoindexer.ai/auth/${VIDEO_INDEXER_REGION}/Accounts/${VIDEO_INDEXER_ACCOUNT_ID}/AccessToken?allowEdit=true`;
+    let requestConfig : AxiosRequestConfig = {
+        headers: {
+            'Content-Type': 'application/json',
+            'Ocp-Apim-Subscription-Key': VIDEO_INDEXER_SUBSCRIPTION_KEY,
+        }
+    };
+
+    return (await axios.get(ENDPOINT, requestConfig) ).data;
+}
+
+/**
+ * Trigger the Video Indexer to index the video from the given videoUrl.
+ * 
+ * @param videoIndexerAccessToken 
+ * @param videoName 
+ * @param videoLanguage 
+ * @param videoUrl 
+ * @param videFileContentType 
+ */
+async function triggerVideoIndexer(videoIndexerAccessToken : string, videoName  : string, videoLanguage : string , videoUrl : string, videFileContentType : string) {
+
+    const ENDPOINT : string  = `https://api.videoindexer.ai/${VIDEO_INDEXER_REGION}/Accounts/${VIDEO_INDEXER_ACCOUNT_ID}/Videos?accessToken=${videoIndexerAccessToken}`
+                                + `&name=${videoName}`
+                                + `&language=${videoLanguage}&streamingPreset=Default`
+                                + `&videoUrl=${encodeURIComponent(videoUrl)}&filetype=${videFileContentType}`;
+    return (await axios.post(ENDPOINT)).data;
+}
 
 function getSASString(amsStorageSharedKeyCredential:SharedKeyCredential) {
     // Connnect to Primary Storage of Azure Media Service 
