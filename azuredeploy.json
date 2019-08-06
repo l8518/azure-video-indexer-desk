@@ -7,6 +7,15 @@
         },
         "eventgrid_secret": {
             "type": "securestring"
+        },
+        "videoIndexerAccountId": {
+            "type": "securestring"
+        },
+        "videoIndexerSubscriptionKey": {
+            "type": "securestring"
+        },
+        "videoIndexerRegion": {
+            "type": "string"
         }
     },
     "variables": {
@@ -14,8 +23,12 @@
         "applicationInsightsName": "[parameters('name')]",
         "storageAccountName": "[concat(parameters('name'), uniquestring(resourceGroup().id))]",
         "dropInStorageAccountName": "[concat('dropin' , uniquestring(resourceGroup().id))]",
+        "eventGridTopicName": "[concat('egt' , uniquestring(resourceGroup().id))]",
         "FunctionName": "IndexNewUploadedFile",
-        "functionUrl": "[concat('https://', variables('FunctionAppName'),'.azurewebsites.net/runtime/webhooks/eventgrid?functionName=', variables('FunctionName'),'&code=')]"
+        "functionUrl": "[concat('https://', variables('FunctionAppName'),'.azurewebsites.net/runtime/webhooks/eventgrid?functionName=', variables('FunctionName'),'&code=')]",
+        "indexingFinishedFunctionName": "IndexingFinished",
+        "indexingFinishedFunctionUrl": "[concat('https://', variables('FunctionAppName'),'.azurewebsites.net/runtime/webhooks/eventgrid?functionName=', variables('indexingFinishedFunctionName'),'&code=')]",
+        "Contributor": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]"
     },
     "resources": [
         {
@@ -57,6 +70,22 @@
                         {
                             "name": "STORAGE_KEY",
                             "value": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('dropInStorageAccountName')), '2015-05-01-preview').key1]"
+                        },
+                        {
+                            "name": "VIDEO_INDEXER_ACCOUNT_ID",
+                            "value": "[parameters('videoIndexerAccountId')]"
+                        },
+                        {
+                            "name": "VIDEO_INDEXER_SUBSCRIPTION_KEY",
+                            "value": "[parameters('videoIndexerSubscriptionKey')]"
+                        },
+                        {
+                            "name": "VIDEO_INDEXER_REGION",
+                            "value": "[parameters('videoIndexerRegion')]"
+                        },
+                        {
+                            "name": "VIDEO_INDEXER_FINISHED_HOOK",
+                            "value": "PENDING"
                         }
                     ]
                 },
@@ -92,7 +121,8 @@
             ],
             "dependsOn": [
                 "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]",
-                "[resourceId('Microsoft.Insights/components', variables('applicationInsightsName'))]"
+                "[resourceId('Microsoft.Insights/components', variables('applicationInsightsName'))]",
+                "[resourceId('Microsoft.EventGrid/topics', variables('eventGridTopicName'))]"
             ]
         },
         {
@@ -137,6 +167,12 @@
                 "ApplicationId": "[variables('functionAppName')]",
                 "Request_Source": "rest"
             }
+        },
+        {
+            "name": "[variables('eventGridTopicName')]",
+            "type": "Microsoft.EventGrid/topics",
+            "location": "[resourceGroup().location]",
+            "apiVersion": "2019-01-01"
         },
         {
             "type": "Microsoft.Storage/storageAccounts/providers/eventSubscriptions",
