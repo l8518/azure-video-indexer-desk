@@ -95,6 +95,19 @@
             },
             "resources": [
                 {
+                    "apiVersion": "2015-08-01",
+                    "name": "web",
+                    "type": "sourcecontrols",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Web/Sites', variables('functionAppName'))]"
+                    ],
+                    "properties": {
+                        "RepoUrl": "https://github.com/l8518/azure-video-indexer-desk",
+                        "branch": "master",
+                        "IsManualIntegration": true
+                    }
+                },
+                {
                     "name": "default/eventgrid_extension",
                     "apiVersion": "2018-11-01",
                     "type": "host/systemkeys",
