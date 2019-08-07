@@ -13,12 +13,16 @@
         },
         "videoIndexerRegion": {
             "type": "string"
+        },
+        "arm-template-folder-url": {
+            "type": "string",
+            "defaultValue": "https://raw.githubusercontent.com/l8518/azure-video-indexer-desk/master"
         }
     },
     "variables": {
-        "dropinStorageARMTemplateURI": "https://raw.githubusercontent.com/l8518/azure-video-indexer-desk/master/azuredeploy-dropin.json",
-        "cosmosStorageARMTemplateURI": "https://raw.githubusercontent.com/l8518/azure-video-indexer-desk/master/azuredeploy-cosmos.json",
-        "videoFunctionsARMTemplateURI": "https://raw.githubusercontent.com/l8518/azure-video-indexer-desk/master/azuredeploy-video.json"
+        "dropinStorageARMTemplateURI": "[concat(parameters('arm-template-folder-url'), '/azuredeploy-dropin.json' )]",
+        "cosmosFunctionsARMTemplateURI": "[concat(parameters('arm-template-folder-url'), '/azuredeploy-cosmos.json' )]",
+        "videoFunctionsARMTemplateURI": "[concat(parameters('arm-template-folder-url'), '/azuredeploy-video.json' )]"
     },
     "resources": [
         {
@@ -36,12 +40,12 @@
                  "videoIndexerAccountId":{"value": "[parameters('videoIndexerAccountId')]"},
                  "videoIndexerSubscriptionKey":{"value": "[parameters('videoIndexerSubscriptionKey')]"},
                  "videoIndexerRegion":{"value": "[parameters('videoIndexerRegion')]"}
-               },
-               "dependsOn": [
+               }
+            },
+            "dependsOn": [
                 "cosmosFunctionTemplate",
-                "dropinStorageTemplate]"
+                "dropinStorageTemplate"
             ]
-            }
          },
         {
             "type": "Microsoft.Resources/deployments",
@@ -50,7 +54,7 @@
             "properties": {
               "mode": "Incremental",
               "templateLink": {
-                "uri":"[variables('cosmosStorageARMTemplateURI')]",
+                "uri":"[variables('cosmosFunctionsARMTemplateURI')]",
                  "contentVersion":"1.0.0.0"
               },
               "parameters": {
