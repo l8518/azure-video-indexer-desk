@@ -21,7 +21,7 @@
         "videoFunctionSAName": "[concat( 'videofs', uniquestring(variables('videoFunctionAppName'), resourceGroup().id))]",
         "videoAppInsightsName": "[variables('videoFunctionAppName')]",
         "dropInStorageAccountName": "[concat('dropin' , uniquestring(resourceGroup().id))]",
-        "videoFunctionAppPackageURL": "https://github.com/l8518/azure-video-indexer-desk/releases/download/v20190807.4/videoindexer-azfunctions_20190807.4.zip",
+        "videoFunctionAppPackageURL": "https://github.com/l8518/azure-video-indexer-desk/releases/latest/download/videoindexer-azfunctions_binaries.zip",
         "Contributor": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
         "functionName": "IndexNewUploadedFile",
         "functionUrl": "[concat('https://', variables('videoFunctionAppName'),'.azurewebsites.net/runtime/webhooks/eventgrid?functionName=', variables('functionName'),'&code=')]"

@@ -19,7 +19,7 @@
         "cosmoFunctionAppName": "[concat(parameters('name'), '-cosmo')]",
         "cosmoFunctionSAName": "[concat( 'cosmofs', uniquestring(variables('cosmoFunctionAppName'), resourceGroup().id))]",
         "cosmoAppInsightsName": "[variables('cosmoFunctionAppName')]",
-        "cosmoFunctionAppPackageURL": "https://github.com/l8518/azure-video-indexer-desk/releases/download/v20190807.4/cosmo-azfunctions_20190807.4.zip"
+        "cosmoFunctionAppPackageURL": "https://github.com/l8518/azure-video-indexer-desk/releases/latest/download/cosmo-azfunctions_binaries.zip"
     },
     "resources": [
         {
