@@ -23,7 +23,7 @@ steps:
     rootFolderOrFile: '$(Build.BinariesDirectory)/${{ parameters.functionName }}'
     includeRootFolder: false
     archiveType: 'zip'
-    archiveFile: '$(Build.ArtifactStagingDirectory)/${{ parameters.functionName }}_$(Build.BuildNumber).zip'
+    archiveFile: '$(Build.ArtifactStagingDirectory)/${{ parameters.functionName }}_binaries.zip'
     replaceExistingArchive: true
 - task: PublishBuildArtifacts@1
   inputs:
