@@ -22,7 +22,9 @@
         "videoAppInsightsName": "[variables('videoFunctionAppName')]",
         "dropInStorageAccountName": "[concat('dropin' , uniquestring(resourceGroup().id))]",
         "videoFunctionAppPackageURL": "https://github.com/l8518/azure-video-indexer-desk/releases/download/v20190807.4/videoindexer-azfunctions_20190807.4.zip",
-        "Contributor": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]"
+        "Contributor": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
+        "functionName": "IndexNewUploadedFile",
+        "functionUrl": "[concat('https://', variables('videoFunctionAppName'),'.azurewebsites.net/runtime/webhooks/eventgrid?functionName=', variables('functionName'),'&code=')]"
     },
     "resources": [
         {
@@ -97,7 +99,8 @@
                         "principalId": "[reference(concat('Microsoft.Web/sites/', variables('videoFunctionAppName')), '2018-02-01', 'Full').identity.principalId]"
                     },
                     "dependsOn": [
-                        "[resourceId('Microsoft.Web/sites', variables('videoFunctionAppName'))]"
+                        "[resourceId('Microsoft.Web/sites', variables('videoFunctionAppName'))]",
+                        "[concat('Microsoft.Web/Sites/', variables('videoFunctionAppName'), '/Extensions/MSDeploy')]"
                     ]
                 },
                 {
@@ -110,7 +113,43 @@
                     ],
                     "properties": {
                         "packageUri": "[variables('videoFunctionAppPackageURL')]"
-                    }
+                    },
+                    "resources" : [
+                        {
+                            "type": "Microsoft.Storage/storageAccounts/providers/eventSubscriptions",
+                            "name": "[concat(variables('dropInStorageAccountName'), '/Microsoft.EventGrid/', 'filedrop')]",
+                            "location": "[resourceGroup().location]",
+                            "apiVersion": "2019-06-01",
+                            "properties": {
+                                "topic": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Storage/StorageAccounts/', variables('dropInStorageAccountName'))]",
+                                "destination": {
+                                    "endpointType": "WebHook",
+                                    "properties": {
+                                        "endpointUrl": "[concat(variables('functionUrl'), listKeys(resourceId('Microsoft.Web/sites/host/', variables('videoFunctionAppName'), 'default'),'2016-08-01').systemkeys.eventgrid_extension)]"
+                                    }
+                                },
+                                "filter": {
+                                    "includedEventTypes": [
+                                        "Microsoft.Storage.BlobCreated"
+                                    ],
+                                    "advancedFilters": [
+                                        {
+                                            "operatorType": "StringBeginsWith",
+                                            "key": "subject",
+                                            "values": [
+                                                "/blobServices/default/containers/drop/"
+                                            ]
+                                        }
+                                    ]
+                                },
+                                "eventDeliverySchema": "EventGridSchema"
+                            },
+                            "dependsOn": [
+                                "[resourceId('Microsoft.Web/sites', variables('videoFunctionAppName'))]",
+                                "[concat('Microsoft.Web/Sites/', variables('videoFunctionAppName'), '/Extensions/MSDeploy')]"
+                            ]
+                        }
+                    ]
                 }
             ],
             "dependsOn": [
