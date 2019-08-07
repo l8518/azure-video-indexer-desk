@@ -14,7 +14,16 @@
       "type": "http",
       "direction": "out",
       "name": "res"
-    }
+    },
+    {
+      "name": "exampleOutput",
+      "type": "cosmosDB",
+      "databaseName": "MyDatabase",
+      "collectionName": "MyCollection",
+      "createIfNotExists": true,
+      "connectionStringSetting": "MyAccount_COSMOSDB",
+      "direction": "out"
+  }
   ],
   "scriptFile": "../dist/OnIndexingFinished/index.js"
 }

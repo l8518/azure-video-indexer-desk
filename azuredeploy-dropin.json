@@ -4,7 +4,8 @@
     "parameters": {
     },
     "variables": {
-        "dropInStorageAccountName": "[concat('dropin' , uniquestring(resourceGroup().id))]"
+        "dropInStorageAccountName": "[concat('dropin' , uniquestring(resourceGroup().id))]",
+        "cosmosDBAccountName": "[concat('cosmosdb' , uniquestring(resourceGroup().id))]"
     },
     "resources": [
         {
@@ -26,6 +27,32 @@
             ],
             "properties": {
                 "publicAccess": "None"
+            }
+        },
+        {
+            "apiVersion": "2015-04-08",
+            "kind": "GlobalDocumentDB",
+            "type": "Microsoft.DocumentDb/databaseAccounts",
+            "name": "[variables('cosmosDBAccountName')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "databaseAccountOfferType": "Standard",
+                "locations": [
+                    {
+                        "id": "[concat(variables('cosmosDBAccountName'), '-', resourceGroup().location)]",
+                        "failoverPriority": 0,
+                        "locationName": "[resourceGroup().location]"
+                    }
+                ],
+                "enableMultipleWriteLocations": false,
+                "isVirtualNetworkFilterEnabled": false,
+                "virtualNetworkRules": [],
+                "ipRangeFilter": "",
+                "dependsOn": [],
+                "capabilities": []
+            },
+            "tags": {
+                "defaultExperience": "Core (SQL)"
             }
         }
     ]
