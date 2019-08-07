@@ -6,6 +6,7 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
     // req.query.name || req.body.name
     context.log(req.query);
     context.log(req.body);
+    context.res = {};
     context.done();
 };
 
