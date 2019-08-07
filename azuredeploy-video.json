@@ -81,7 +81,7 @@
                         },
                         {
                             "name": "VIDEO_INDEXER_FINISHED_HOOK",
-                            "value": "[concat('https://', variables('cosmoFunctionAppName'),'.azurewebsites.net/api/OnIndexingFinished','&code=', listKeys(resourceId('Microsoft.Web/sites/functions', variables('cosmoFunctionAppName') , 'OnIndexingFinished' ) ,'2016-08-01').default)]"
+                            "value": "[concat('https://', variables('cosmoFunctionAppName'),'.azurewebsites.net/api/OnIndexingFinished','?code=', listKeys(resourceId('Microsoft.Web/sites/functions', variables('cosmoFunctionAppName') , 'OnIndexingFinished' ) ,'2016-08-01').default)]"
                         }
                     ]
                 },
