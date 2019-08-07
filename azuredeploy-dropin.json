@@ -1,0 +1,32 @@
+{
+    "contentVersion": "1.0.0.0",
+    "$schema": "http://schema.management.azure.com/schemas/2018-05-01/deploymentTemplate.json#",
+    "parameters": {
+    },
+    "variables": {
+        "dropInStorageAccountName": "[concat('dropin' , uniquestring(resourceGroup().id))]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "kind": "StorageV2",
+            "apiVersion": "2019-04-01",
+            "name": "[variables('dropInStorageAccountName')]",
+            "location": "[resourceGroup().location]",
+            "sku": {
+                "name": "Standard_LRS"
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+            "apiVersion": "2019-04-01",
+            "name": "[concat(variables('dropInStorageAccountName'), '/default/drop')]",
+            "dependsOn": [
+                "[variables('dropInStorageAccountName')]"
+            ],
+            "properties": {
+                "publicAccess": "None"
+            }
+        }
+    ]
+}

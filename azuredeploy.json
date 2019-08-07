@@ -5,9 +5,6 @@
         "name": {
             "type": "string"
         },
-        "eventgrid_secret": {
-            "type": "securestring"
-        },
         "videoIndexerAccountId": {
             "type": "securestring"
         },
@@ -19,210 +16,63 @@
         }
     },
     "variables": {
-        "functionAppName": "[parameters('name')]",
-        "applicationInsightsName": "[parameters('name')]",
-        "storageAccountName": "[concat(parameters('name'), uniquestring(resourceGroup().id))]",
-        "dropInStorageAccountName": "[concat('dropin' , uniquestring(resourceGroup().id))]",
-        "eventGridTopicName": "[concat('egt' , uniquestring(resourceGroup().id))]",
-        "FunctionName": "IndexNewUploadedFile",
-        "functionUrl": "[concat('https://', variables('FunctionAppName'),'.azurewebsites.net/runtime/webhooks/eventgrid?functionName=', variables('FunctionName'),'&code=')]",
-        "indexingFinishedFunctionName": "IndexingFinished",
-        "indexingFinishedFunctionUrl": "[concat('https://', variables('FunctionAppName'),'.azurewebsites.net/runtime/webhooks/eventgrid?functionName=', variables('indexingFinishedFunctionName'),'&code=')]",
-        "Contributor": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]"
+        "dropinStorageARMTemplateURI": "https://raw.githubusercontent.com/l8518/azure-video-indexer-desk/master/azuredeploy-dropin.json",
+        "cosmosStorageARMTemplateURI": "https://raw.githubusercontent.com/l8518/azure-video-indexer-desk/master/azuredeploy-cosmos.json",
+        "videoFunctionsARMTemplateURI": "https://raw.githubusercontent.com/l8518/azure-video-indexer-desk/master/azuredeploy-video.json"
     },
     "resources": [
         {
-            "type": "Microsoft.Web/sites",
-            "kind": "functionapp,linux",
-            "name": "[parameters('name')]",
-            "apiVersion": "2016-08-01",
-            "location": "[resourceGroup().location]",
-            "identity": {
-                "type": "SystemAssigned"
-            },
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2018-05-01",
+            "name": "videoFunctionTemplate",
             "properties": {
-                "siteConfig": {
-                    "appSettings": [
-                        {
-                            "name": "FUNCTIONS_WORKER_RUNTIME",
-                            "value": "node"
-                        },
-                        {
-                            "name": "AzureWebJobsStorage",
-                            "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('storageAccountName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2015-05-01-preview').key1)]"
-                        },
-                        {
-                            "name": "FUNCTIONS_EXTENSION_VERSION",
-                            "value": "~2"
-                        },
-                        {
-                            "name": "WEBSITE_NODE_DEFAULT_VERSION",
-                            "value": "10.14.1"
-                        },
-                        {
-                            "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
-                            "value": "[reference(concat('microsoft.insights/components/', variables('applicationInsightsName')), '2015-05-01').InstrumentationKey]"
-                        },
-                        {
-                            "name": "STORAGE_ACC_NAME",
-                            "value": "[variables('dropInStorageAccountName')]"
-                        },
-                        {
-                            "name": "STORAGE_KEY",
-                            "value": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('dropInStorageAccountName')), '2015-05-01-preview').key1]"
-                        },
-                        {
-                            "name": "VIDEO_INDEXER_ACCOUNT_ID",
-                            "value": "[parameters('videoIndexerAccountId')]"
-                        },
-                        {
-                            "name": "VIDEO_INDEXER_SUBSCRIPTION_KEY",
-                            "value": "[parameters('videoIndexerSubscriptionKey')]"
-                        },
-                        {
-                            "name": "VIDEO_INDEXER_REGION",
-                            "value": "[parameters('videoIndexerRegion')]"
-                        },
-                        {
-                            "name": "VIDEO_INDEXER_FINISHED_HOOK",
-                            "value": "PENDING"
-                        }
-                    ]
-                },
-                "name": "[variables('functionAppName')]",
-                "clientAffinityEnabled": false,
-                "reserved": true
-            },
-            "resources": [
-                {
-                    "apiVersion": "2015-08-01",
-                    "name": "web",
-                    "type": "sourcecontrols",
-                    "dependsOn": [
-                        "[resourceId('Microsoft.Web/Sites', variables('functionAppName'))]"
-                    ],
-                    "properties": {
-                        "RepoUrl": "https://github.com/l8518/azure-video-indexer-desk",
-                        "branch": "master",
-                        "IsManualIntegration": true
-                    }
-                },
-                {
-                    "name": "default/eventgrid_extension",
-                    "apiVersion": "2018-11-01",
-                    "type": "host/systemkeys",
-                    "properties": {
-                        "name": "eventgrid_extension",
-                        "value": "[parameters('eventgrid_secret')]"
-                    },
-                    "dependsOn": [
-                        "[resourceId('Microsoft.Web/sites', variables('functionAppName'))]"
-                    ]
-                },
-                {
-                    "type": "Microsoft.Storage/storageAccounts/providers/roleAssignments",
-                    "apiVersion": "2017-05-01",
-                    "name": "[concat(variables('dropInStorageAccountName'), '/Microsoft.Authorization/', guid(resourceGroup().id, subscription().subscriptionId, 'funcStorageAuth'))]",
-                    "properties": {
-                        "roleDefinitionId": "[variables('Contributor')]",
-                        "principalId": "[reference(concat('Microsoft.Web/sites/', variables('functionAppName')), '2018-02-01', 'Full').identity.principalId]"
-                    },
-                    "dependsOn": [
-                        "[resourceId('Microsoft.Web/sites', variables('functionAppName'))]"
-                    ]
-                }
-            ],
-            "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]",
-                "[resourceId('Microsoft.Insights/components', variables('applicationInsightsName'))]",
-                "[resourceId('Microsoft.EventGrid/topics', variables('eventGridTopicName'))]"
+              "mode": "Incremental",
+              "templateLink": {
+                "uri":"[variables('videoFunctionsARMTemplateURI')]",
+                 "contentVersion":"1.0.0.0"
+              },
+              "parameters": {
+                 "name":{"value": "[parameters('name')]"},
+                 "videoIndexerAccountId":{"value": "[parameters('videoIndexerAccountId')]"},
+                 "videoIndexerSubscriptionKey":{"value": "[parameters('videoIndexerSubscriptionKey')]"},
+                 "videoIndexerRegion":{"value": "[parameters('videoIndexerRegion')]"}
+               },
+               "dependsOn": [
+                "cosmosFunctionTemplate",
+                "dropinStorageTemplate]"
             ]
-        },
-        {
-            "type": "Microsoft.Storage/storageAccounts",
-            "kind": "StorageV2",
-            "apiVersion": "2019-04-01",
-            "name": "[variables('storageAccountName')]",
-            "location": "[resourceGroup().location]",
-            "sku": {
-                "name": "Standard_LRS"
             }
-        },
+         },
         {
-            "type": "Microsoft.Storage/storageAccounts",
-            "kind": "StorageV2",
-            "apiVersion": "2019-04-01",
-            "name": "[variables('dropInStorageAccountName')]",
-            "location": "[resourceGroup().location]",
-            "sku": {
-                "name": "Standard_LRS"
-            }
-        },
-        {
-            "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
-            "apiVersion": "2019-04-01",
-            "name": "[concat(variables('dropInStorageAccountName'), '/default/drop')]",
-            "dependsOn": [
-                "[variables('dropInStorageAccountName')]"
-            ],
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2018-05-01",
+            "name": "cosmosFunctionTemplate",
             "properties": {
-                "publicAccess": "None"
+              "mode": "Incremental",
+              "templateLink": {
+                "uri":"[variables('cosmosStorageARMTemplateURI')]",
+                 "contentVersion":"1.0.0.0"
+              },
+              "parameters": {
+                 "name":{"value": "[parameters('name')]"},
+                 "videoIndexerAccountId":{"value": "[parameters('videoIndexerAccountId')]"},
+                 "videoIndexerSubscriptionKey":{"value": "[parameters('videoIndexerSubscriptionKey')]"},
+                 "videoIndexerRegion":{"value": "[parameters('videoIndexerRegion')]"}
+               }
             }
-        },
+         },
         {
-            "type": "Microsoft.Insights/components",
-            "apiVersion": "2015-05-01",
-            "name": "[variables('applicationInsightsName')]",
-            "location": "[resourceGroup().location]",
-            "kind": "web",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2018-05-01",
+            "name": "dropinStorageTemplate",
             "properties": {
-                "Application_Type": "other",
-                "ApplicationId": "[variables('functionAppName')]",
-                "Request_Source": "rest"
+              "mode": "Incremental",
+              "templateLink": {
+                 "uri":"[variables('dropinStorageARMTemplateURI')]",
+                 "contentVersion":"1.0.0.0"
+              },
+              "parameters": {}
             }
-        },
-        {
-            "name": "[variables('eventGridTopicName')]",
-            "type": "Microsoft.EventGrid/topics",
-            "location": "[resourceGroup().location]",
-            "apiVersion": "2019-01-01"
-        },
-        {
-            "type": "Microsoft.Storage/storageAccounts/providers/eventSubscriptions",
-            "name": "[concat(variables('dropInStorageAccountName'), '/Microsoft.EventGrid/', 'filedrop')]",
-            "location": "[resourceGroup().location]",
-            "apiVersion": "2019-06-01",
-            "properties": {
-                "topic": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Storage/StorageAccounts/', variables('dropInStorageAccountName'))]",
-                "destination": {
-                    "endpointType": "WebHook",
-                    "properties": {
-                        "endpointUrl": "[concat(variables('functionUrl'), listKeys(resourceId('Microsoft.Web/sites/host/', variables('functionAppName'), 'default'),'2016-08-01').systemkeys.eventgrid_extension)]"
-                    }
-                },
-                "filter": {
-                    "includedEventTypes": [
-                        "Microsoft.Storage.BlobCreated"
-                    ],
-                    "advancedFilters": [
-                        {
-                            "operatorType": "StringBeginsWith",
-                            "key": "subject",
-                            "values": [
-                                "/blobServices/default/containers/drop/"
-                            ]
-                        }
-                    ]
-                },
-                "labels": [
-                    "[concat('functions-', toLower(variables('FunctionName')))]"
-                ],
-                "eventDeliverySchema": "EventGridSchema"
-            },
-            "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', variables('functionAppName'))]",
-                "[resourceId('Microsoft.Web/sites/host/systemkeys', variables('functionAppName'),'default','eventgrid_extension')]"
-            ]
-        }
+         }
     ]
 }

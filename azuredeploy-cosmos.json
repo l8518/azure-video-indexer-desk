@@ -1,0 +1,117 @@
+{
+    "contentVersion": "1.0.0.0",
+    "$schema": "http://schema.management.azure.com/schemas/2018-05-01/deploymentTemplate.json#",
+    "parameters": {
+        "name": {
+            "type": "string"
+        },
+        "videoIndexerAccountId": {
+            "type": "securestring"
+        },
+        "videoIndexerSubscriptionKey": {
+            "type": "securestring"
+        },
+        "videoIndexerRegion": {
+            "type": "string"
+        }
+    },
+    "variables": {
+        "cosmoFunctionAppName": "[concat(parameters('name'), '-cosmo')]",
+        "cosmoFunctionSAName": "[concat( 'cosmofs', uniquestring(variables('cosmoFunctionAppName'), resourceGroup().id))]",
+        "cosmoAppInsightsName": "[variables('cosmoFunctionAppName')]",
+        "cosmoFunctionAppPackageURL": "https://github.com/l8518/azure-video-indexer-desk/releases/download/v20190807.4/cosmo-azfunctions_20190807.4.zip"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Web/sites",
+            "kind": "functionapp",
+            "name": "[variables('cosmoFunctionAppName')]",
+            "apiVersion": "2016-03-01",
+            "location": "[resourceGroup().location]",
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "siteConfig": {
+                    "appSettings": [
+                        {
+                            "name": "FUNCTIONS_WORKER_RUNTIME",
+                            "value": "node"
+                        },
+                        {
+                            "name": "AzureWebJobsStorage",
+                            "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('cosmoFunctionSAName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('cosmoFunctionSAName')), '2015-05-01-preview').key1)]"
+                        },
+                        {
+                            "name": "FUNCTIONS_EXTENSION_VERSION",
+                            "value": "~2"
+                        },
+                        {
+                            "name": "WEBSITE_NODE_DEFAULT_VERSION",
+                            "value": "10.14.1"
+                        },
+                        {
+                            "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+                            "value": "[reference(concat('microsoft.insights/components/', variables('cosmoAppInsightsName')), '2015-05-01').InstrumentationKey]"
+                        },
+                        {
+                            "name": "VIDEO_INDEXER_ACCOUNT_ID",
+                            "value": "[parameters('videoIndexerAccountId')]"
+                        },
+                        {
+                            "name": "VIDEO_INDEXER_SUBSCRIPTION_KEY",
+                            "value": "[parameters('videoIndexerSubscriptionKey')]"
+                        },
+                        {
+                            "name": "VIDEO_INDEXER_REGION",
+                            "value": "[parameters('videoIndexerRegion')]"
+                        }
+                    ]
+                },
+                "name": "[variables('cosmoFunctionAppName')]",
+                "clientAffinityEnabled": false,
+                "reserved": false
+            },
+            "resources": [
+                {
+                    "name": "MSDeploy",
+                    "type": "extensions",
+                    "location": "[resourceGroup().location]",
+                    "apiVersion": "2015-08-01",
+                    "dependsOn": [
+                        "[concat('Microsoft.Web/sites/', variables('cosmoFunctionAppName'))]"
+                    ],
+                    "properties": {
+                        "packageUri": "[variables('cosmoFunctionAppPackageURL')]"
+                    }
+                }
+            ],
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('cosmoFunctionSAName'))]",
+                "[resourceId('Microsoft.Insights/components', variables('cosmoAppInsightsName'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "kind": "StorageV2",
+            "apiVersion": "2019-04-01",
+            "name": "[variables('cosmoFunctionSAName')]",
+            "location": "[resourceGroup().location]",
+            "sku": {
+                "name": "Standard_LRS"
+            }
+        },
+        {
+            "type": "Microsoft.Insights/components",
+            "apiVersion": "2015-05-01",
+            "name": "[variables('cosmoAppInsightsName')]",
+            "location": "[resourceGroup().location]",
+            "kind": "web",
+            "properties": {
+                "Application_Type": "other",
+                "ApplicationId": "[variables('cosmoFunctionAppName')]",
+                "Request_Source": "rest"
+            }
+        }
+    ]
+}
