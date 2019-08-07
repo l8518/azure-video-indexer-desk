@@ -1,0 +1,32 @@
+# File: templates/npm-with-params.yml
+
+parameters:
+  functionName: ''  # defaults for any parameters that aren't specified
+
+steps:
+- task: DockerCompose@0
+  inputs:
+    containerregistrytype: 'Azure Container Registry'
+    dockerComposeFile: '${{ parameters.functionName }}/docker-compose.prodbuild.yml'
+    action: 'Build Services'
+    currentWorkingDirectory: '$(System.DefaultWorkingDirectory)/${{ parameters.functionName }}'
+    additionalImageTags: '$(Build.BuildId)'
+- task: Bash@3
+  inputs:
+    targetType: 'inline'
+    script: |
+      id=$(docker create ${{ parameters.functionName }}-prodbuild:$(Build.BuildId))
+      docker cp ${id}:/azfunc $(Build.BinariesDirectory)/${{ parameters.functionName }}
+      docker rm -v $id
+- task: ArchiveFiles@2
+  inputs:
+    rootFolderOrFile: '$(Build.BinariesDirectory)/${{ parameters.functionName }}'
+    includeRootFolder: false
+    archiveType: 'zip'
+    archiveFile: '$(Build.ArtifactStagingDirectory)/${{ parameters.functionName }}_$(Build.BuildNumber).zip'
+    replaceExistingArchive: true
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: ${{ parameters.functionName }}
+    publishLocation: 'Container'

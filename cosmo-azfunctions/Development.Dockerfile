@@ -1,11 +1,11 @@
 ### STAGE 1: Development ###
 
 # Image defaults:
-FROM mcr.microsoft.com/dotnet/core/sdk:2.1 as az-function-development
+FROM mcr.microsoft.com/dotnet/core/sdk:2.1 as cosmo-azfunctions-development
 ENV AZURE_FUNCTIONS_ENVIRONMENT=Development
 ENV AzureWebJobsSecretStorageType=Files
 SHELL ["/bin/bash", "-c"]
-CMD npm run start
+CMD npm install && npm run start
 
 # Install node.JS:
 RUN apt-get update && \
@@ -29,3 +29,6 @@ RUN npm install
 
 # Copy the Az Funcs Source
 COPY . .
+
+FROM cosmo-azfunctions-development AS cosmo-azfunctions-builder
+RUN npm run build:production

@@ -6,32 +6,19 @@
 trigger:
 - master
 
-pool:
-  vmImage: 'ubuntu-latest'
+jobs:
+- job: Build_Cosmos_DB_Function_App
+  pool:
+    vmImage: 'ubuntu-latest'
+  steps:
+    - template: azure-pipelines-function-build.yml
+      parameters:
+        functionName: cosmo-azfunctions
 
-steps:
-- task: DockerCompose@0
-  inputs:
-    containerregistrytype: 'Azure Container Registry'
-    dockerComposeFile: 'azfunc/docker-compose.production-build.yml'
-    action: 'Build Services'
-    currentWorkingDirectory: '$(System.DefaultWorkingDirectory)/azfunc'
-- task: Bash@3
-  inputs:
-    targetType: 'inline'
-    script: |
-      id=$(docker create azfunc_prod:latest)
-      docker cp ${id}:/home/site/wwwroot $(Build.BinariesDirectory)/azfunc
-      docker rm -v $id
-- task: ArchiveFiles@2
-  inputs:
-    rootFolderOrFile: '$(Build.BinariesDirectory)/azfunc'
-    includeRootFolder: false
-    archiveType: 'zip'
-    archiveFile: '$(Build.ArtifactStagingDirectory)/azfunc_$(Build.BuildNumber).zip'
-    replaceExistingArchive: true
-- task: PublishBuildArtifacts@1
-  inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-    ArtifactName: 'drop'
-    publishLocation: 'Container'
+- job: Build_Video_Indexer_Function_App
+  pool:
+    vmImage: 'ubuntu-latest'
+  steps:
+    - template: azure-pipelines-function-build.yml
+      parameters:
+        functionName: videoindexer-azfunctions

@@ -8,6 +8,7 @@ const VIDEO_INDEXER_ACCOUNT_ID = process.env["VIDEO_INDEXER_ACCOUNT_ID"];
 const VIDEO_INDEXER_SUBSCRIPTION_KEY = process.env["VIDEO_INDEXER_SUBSCRIPTION_KEY"];
 const VIDEO_INDEXER_REGION = process.env["VIDEO_INDEXER_REGION"];
 const VIDEO_INDEXER_DEFAULT_LANGUAGE = "German" || process.env["VIDEO_INDEXER_DEFAULT_LANGUAGE"];
+const VIDEO_INDEXER_FINISHED_HOOK = process.env["VIDEO_INDEXER_FINISHED_HOOK"];
 
 /**
  * This AZ Function triggers the Azure Media Service to encode a uploaded file automatically.

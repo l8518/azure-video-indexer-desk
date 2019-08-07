@@ -1,0 +1,12 @@
+version: '3.4'
+
+services:
+  app:
+    build:
+          context: .
+          dockerfile: Development.Dockerfile
+    image: videoindexer-azfunc_dev
+    volumes:
+    - ./:/azfunc
+    ports: 
+      - "7071:7071" 
