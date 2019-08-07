@@ -70,6 +70,7 @@ const eventGridTrigger: AzureFunction = async function (context: Context, eventG
     catch (error) {
         context.log(error);
     }
+    context.log(triggerResult);
     context.log(triggerResult.id);
     return context.done();
 };
@@ -103,9 +104,10 @@ async function getVideoIndexerAccessToken() {
 async function triggerVideoIndexer(videoIndexerAccessToken: string, videoName: string, videoLanguage: string, videoUrl: string, videFileContentType: string) {
 
     const ENDPOINT: string = `https://api.videoindexer.ai/${VIDEO_INDEXER_REGION}/Accounts/${VIDEO_INDEXER_ACCOUNT_ID}/Videos?accessToken=${videoIndexerAccessToken}`
-        + `&name=${videoName}`
-        + `&language=${videoLanguage}&streamingPreset=Default`
-        + `&videoUrl=${encodeURIComponent(videoUrl)}&filetype=${videFileContentType}`;
+        + `&name=${encodeURIComponent(videoName)}`
+        + `&callbackUrl=${encodeURIComponent(VIDEO_INDEXER_FINISHED_HOOK)}`
+        + `&language=${encodeURIComponent(videoLanguage)}&streamingPreset=Default`
+        + `&videoUrl=${encodeURIComponent(videoUrl)}&filetype=${encodeURIComponent(videFileContentType)}`;
     return (await axios.post(ENDPOINT)).data;
 }
 

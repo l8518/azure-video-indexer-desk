@@ -4,10 +4,9 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
     context.log('HTTP trigger function processed a request.');
     // const name = (req.query.name || (req.body && req.body.name));
     // req.query.name || req.body.name
-    context.res = {
-        // status: 200, /* Defaults to 200 */
-        body: "Hello "
-    };
+    context.log(req.query);
+    context.log(req.body);
+    context.done();
 };
 
 export default httpTrigger;
