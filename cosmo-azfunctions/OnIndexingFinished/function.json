@@ -16,10 +16,10 @@
       "name": "res"
     },
     {
-      "name": "exampleOutput",
+      "name": "videoInsightOutput",
       "type": "cosmosDB",
-      "databaseName": "MyDatabase",
-      "collectionName": "MyCollection",
+      "databaseName": "VideoIndexer",
+      "collectionName": "VideoIndexerInsights",
       "createIfNotExists": true,
       "connectionStringSetting": "COSMOSDB_CONNECTION",
       "direction": "out"

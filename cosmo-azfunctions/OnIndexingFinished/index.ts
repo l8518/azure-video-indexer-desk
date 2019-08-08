@@ -33,7 +33,7 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
     context.res = {};
     
     // Store the Video Insights
-    context.bindings.exampleOutput = JSON.stringify({
+    context.bindings.videoInsightOutput = JSON.stringify({
         id: videoId,
         fileName: videoInsights.name,
         externalUrl: videoInsights.externalUrl,
