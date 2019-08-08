@@ -21,7 +21,7 @@
       "databaseName": "MyDatabase",
       "collectionName": "MyCollection",
       "createIfNotExists": true,
-      "connectionStringSetting": "MyAccount_COSMOSDB",
+      "connectionStringSetting": "COSMOSDB_CONNECTION",
       "direction": "out"
   }
   ],
