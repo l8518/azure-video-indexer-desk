@@ -63,7 +63,10 @@
                  "videoIndexerSubscriptionKey":{"value": "[parameters('videoIndexerSubscriptionKey')]"},
                  "videoIndexerRegion":{"value": "[parameters('videoIndexerRegion')]"}
                }
-            }
+            },
+            "dependsOn": [
+                "deskStorageTemplate"
+            ]
          },
         {
             "type": "Microsoft.Resources/deployments",
