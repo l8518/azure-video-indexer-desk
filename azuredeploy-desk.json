@@ -66,5 +66,11 @@
                 "defaultExperience": "Core (SQL)"
             }
         }
-    ]
+    ],
+    "outputs": {
+        "COSMOSDB_CONNECTION" : {
+            "type": "string",
+            "value" : "[concat('AccountEndpoint=', reference(resourceId('Microsoft.DocumentDb/databaseAccounts/', variables('cosmosDBAccountName'))).documentEndpoint, ';AccountKey=', listKeys(resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosDBAccountName')), providers('Microsoft.DocumentDB', 'databaseAccounts').apiVersions[0]).primaryMasterKey, ';')]"
+        }
+    }
 }

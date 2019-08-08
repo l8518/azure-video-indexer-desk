@@ -60,7 +60,8 @@
                  "name":{"value": "[parameters('name')]"},
                  "videoIndexerAccountId":{"value": "[parameters('videoIndexerAccountId')]"},
                  "videoIndexerSubscriptionKey":{"value": "[parameters('videoIndexerSubscriptionKey')]"},
-                 "videoIndexerRegion":{"value": "[parameters('videoIndexerRegion')]"}
+                 "videoIndexerRegion":{"value": "[parameters('videoIndexerRegion')]"},
+                 "cosmosdbConnection": {"value" : "[reference('deskStorageTemplate').outputs.propertyName.value]"}
                }
             },
             "dependsOn": [

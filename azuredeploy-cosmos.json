@@ -13,6 +13,9 @@
         },
         "videoIndexerRegion": {
             "type": "string"
+        },
+        "cosmosdbConnection": {
+            "type": "securestring"
         }
     },
     "variables": {
@@ -75,6 +78,10 @@
                         {
                             "name": "DESK_STORAGE_KEY",
                             "value": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('deskStorageAccountName')), '2015-05-01-preview').key1]"
+                        },
+                        {
+                            "name": "COSMOSDB_CONNECTION",
+                            "value" : "[parameters('cosmosdbConnection')]"
                         }
                     ],
                     "cors": {
