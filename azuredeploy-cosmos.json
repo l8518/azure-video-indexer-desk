@@ -75,10 +75,6 @@
                         {
                             "name": "DESK_STORAGE_KEY",
                             "value": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('deskStorageAccountName')), '2015-05-01-preview').key1]"
-                        },
-                        {
-                            "name": "COSMOSDB_CONNECTION",
-                            "value" : "[concat('AccountEndpoint=https://', variables('cosmosDBAccountName'), '.documents.azure.com:443/;AccountKey=', listKeys(resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosDBAccountName')), providers('Microsoft.DocumentDB', 'databaseAccounts').apiVersions[0]).primaryMasterKey, ';')]"
                         }
                     ],
                     "cors": {
