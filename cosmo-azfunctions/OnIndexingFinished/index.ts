@@ -36,7 +36,8 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
     context.bindings.exampleOutput = JSON.stringify({
         id: videoId,
         fileName: videoInsights.name,
-        faces: faces
+        externalUrl: videoInsights.externalUrl,
+        insights: videoInsights.insights
       });
 };
 
@@ -57,7 +58,8 @@ async function getVideoInsights (videoId: string, videoIndexerAccessToken : stri
   
   return {
     name: resp.name,
-    insights: resp.videos[0].insights
+    insights: resp.videos[0].insights,
+    externalUrl: resp.externalUrl
   }
 
 }
@@ -81,19 +83,11 @@ async function processFaces(faces : Array<any>, videoId, accessToken) {
   const targetBlobContainer = ContainerURL.fromServiceURL(storageServiceURL, 'faceimgs');
 
   // Process and return face data
-  return faces.map((value: any, index: number, array: any[]) => {
+  faces.forEach((value: any, index: number, array: any[]) => {
     // Upload faces async to Blob Storage
     let fName = videoId + "/" + `FaceThumbnail_${value.thumbnailId}.jpg`;  
     let requestedFaceThumbnailStream = getThumbnailAsBuffer(videoId, value.thumbnailId, accessToken)
     uploadStream(Aborter.none, targetBlobContainer, fName, requestedFaceThumbnailStream);
-
-    return {
-      name: value.name,
-      title: value.title,
-      confidence: value.confidence,
-      description: value.description,
-      thumbnailId: value.thumbnailId
-    }
   });
 }
 
