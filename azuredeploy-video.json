@@ -93,7 +93,7 @@
                 {
                     "type": "Microsoft.Storage/storageAccounts/providers/roleAssignments",
                     "apiVersion": "2017-05-01",
-                    "name": "[concat(variables('deskStorageAccountName'), '/Microsoft.Authorization/', guid(resourceGroup().id, subscription().subscriptionId, 'funcStorageAuth'))]",
+                    "name": "[concat(variables('deskStorageAccountName'), '/Microsoft.Authorization/', guid(resourceGroup().id, subscription().subscriptionId, parameters('name'), 'funcStorageAuth'))]",
                     "properties": {
                         "roleDefinitionId": "[variables('Contributor')]",
                         "principalId": "[reference(concat('Microsoft.Web/sites/', variables('videoFunctionAppName')), '2018-02-01', 'Full').identity.principalId]"
