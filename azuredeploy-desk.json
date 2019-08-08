@@ -30,6 +30,17 @@
             }
         },
         {
+            "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+            "apiVersion": "2019-04-01",
+            "name": "[concat(variables('deskStorageAccountName'), '/default/faceimgs')]",
+            "dependsOn": [
+                "[variables('deskStorageAccountName')]"
+            ],
+            "properties": {
+                "publicAccess": "Blob"
+            }
+        },
+        {
             "apiVersion": "2015-04-08",
             "kind": "GlobalDocumentDB",
             "type": "Microsoft.DocumentDb/databaseAccounts",
