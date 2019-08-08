@@ -19,7 +19,8 @@
         "cosmoFunctionAppName": "[concat(parameters('name'), '-cosmo')]",
         "cosmoFunctionSAName": "[concat( 'cosmofs', uniquestring(variables('cosmoFunctionAppName'), resourceGroup().id))]",
         "cosmoAppInsightsName": "[variables('cosmoFunctionAppName')]",
-        "cosmoFunctionAppPackageURL": "https://github.com/l8518/azure-video-indexer-desk/releases/latest/download/cosmo-azfunctions_binaries.zip"
+        "cosmoFunctionAppPackageURL": "https://github.com/l8518/azure-video-indexer-desk/releases/latest/download/cosmo-azfunctions_binaries.zip",
+        "deskStorageAccountName": "[concat('desk' , uniquestring(resourceGroup().id))]"
     },
     "resources": [
         {
@@ -65,6 +66,14 @@
                         {
                             "name": "VIDEO_INDEXER_REGION",
                             "value": "[parameters('videoIndexerRegion')]"
+                        },
+                        {
+                            "name": "DESK_STORAGE_ACC_NAME",
+                            "value": "[variables('deskStorageAccountName')]"
+                        },
+                        {
+                            "name": "DESK_STORAGE_KEY",
+                            "value": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('deskStorageAccountName')), '2015-05-01-preview').key1]"
                         }
                     ],
                     "cors": {
