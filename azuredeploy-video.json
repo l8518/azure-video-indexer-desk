@@ -20,7 +20,7 @@
         "videoFunctionAppName": "[concat(parameters('name'), '-video')]",
         "videoFunctionSAName": "[concat( 'videofs', uniquestring(variables('videoFunctionAppName'), resourceGroup().id))]",
         "videoAppInsightsName": "[variables('videoFunctionAppName')]",
-        "dropInStorageAccountName": "[concat('dropin' , uniquestring(resourceGroup().id))]",
+        "deskStorageAccountName": "[concat('desk' , uniquestring(resourceGroup().id))]",
         "videoFunctionAppPackageURL": "https://github.com/l8518/azure-video-indexer-desk/releases/latest/download/videoindexer-azfunctions_binaries.zip",
         "Contributor": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
         "functionName": "IndexNewUploadedFile",
@@ -61,11 +61,11 @@
                         },
                         {
                             "name": "STORAGE_ACC_NAME",
-                            "value": "[variables('dropInStorageAccountName')]"
+                            "value": "[variables('deskStorageAccountName')]"
                         },
                         {
                             "name": "STORAGE_KEY",
-                            "value": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('dropInStorageAccountName')), '2015-05-01-preview').key1]"
+                            "value": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('deskStorageAccountName')), '2015-05-01-preview').key1]"
                         },
                         {
                             "name": "VIDEO_INDEXER_ACCOUNT_ID",
@@ -93,7 +93,7 @@
                 {
                     "type": "Microsoft.Storage/storageAccounts/providers/roleAssignments",
                     "apiVersion": "2017-05-01",
-                    "name": "[concat(variables('dropInStorageAccountName'), '/Microsoft.Authorization/', guid(resourceGroup().id, subscription().subscriptionId, 'funcStorageAuth'))]",
+                    "name": "[concat(variables('deskStorageAccountName'), '/Microsoft.Authorization/', guid(resourceGroup().id, subscription().subscriptionId, 'funcStorageAuth'))]",
                     "properties": {
                         "roleDefinitionId": "[variables('Contributor')]",
                         "principalId": "[reference(concat('Microsoft.Web/sites/', variables('videoFunctionAppName')), '2018-02-01', 'Full').identity.principalId]"
@@ -117,11 +117,11 @@
                     "resources" : [
                         {
                             "type": "Microsoft.Storage/storageAccounts/providers/eventSubscriptions",
-                            "name": "[concat(variables('dropInStorageAccountName'), '/Microsoft.EventGrid/', 'filedrop')]",
+                            "name": "[concat(variables('deskStorageAccountName'), '/Microsoft.EventGrid/', 'filedrop')]",
                             "location": "[resourceGroup().location]",
                             "apiVersion": "2019-06-01",
                             "properties": {
-                                "topic": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Storage/StorageAccounts/', variables('dropInStorageAccountName'))]",
+                                "topic": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Storage/StorageAccounts/', variables('deskStorageAccountName'))]",
                                 "destination": {
                                     "endpointType": "WebHook",
                                     "properties": {

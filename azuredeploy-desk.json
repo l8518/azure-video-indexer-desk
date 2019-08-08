@@ -4,7 +4,7 @@
     "parameters": {
     },
     "variables": {
-        "dropInStorageAccountName": "[concat('dropin' , uniquestring(resourceGroup().id))]",
+        "deskStorageAccountName": "[concat('desk' , uniquestring(resourceGroup().id))]",
         "cosmosDBAccountName": "[concat('cosmosdb' , uniquestring(resourceGroup().id))]"
     },
     "resources": [
@@ -12,7 +12,7 @@
             "type": "Microsoft.Storage/storageAccounts",
             "kind": "StorageV2",
             "apiVersion": "2019-04-01",
-            "name": "[variables('dropInStorageAccountName')]",
+            "name": "[variables('deskStorageAccountName')]",
             "location": "[resourceGroup().location]",
             "sku": {
                 "name": "Standard_LRS"
@@ -21,9 +21,9 @@
         {
             "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
             "apiVersion": "2019-04-01",
-            "name": "[concat(variables('dropInStorageAccountName'), '/default/drop')]",
+            "name": "[concat(variables('deskStorageAccountName'), '/default/drop')]",
             "dependsOn": [
-                "[variables('dropInStorageAccountName')]"
+                "[variables('deskStorageAccountName')]"
             ],
             "properties": {
                 "publicAccess": "None"

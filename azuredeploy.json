@@ -20,7 +20,7 @@
         }
     },
     "variables": {
-        "dropinStorageARMTemplateURI": "[concat(parameters('arm-template-folder-url'), '/azuredeploy-dropin.json' )]",
+        "deskStorageARMTemplateURI": "[concat(parameters('arm-template-folder-url'), '/azuredeploy-desk.json' )]",
         "cosmosFunctionsARMTemplateURI": "[concat(parameters('arm-template-folder-url'), '/azuredeploy-cosmos.json' )]",
         "videoFunctionsARMTemplateURI": "[concat(parameters('arm-template-folder-url'), '/azuredeploy-video.json' )]"
     },
@@ -44,7 +44,7 @@
             },
             "dependsOn": [
                 "cosmosFunctionTemplate",
-                "dropinStorageTemplate"
+                "deskStorageTemplate"
             ]
          },
         {
@@ -68,11 +68,11 @@
         {
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2018-05-01",
-            "name": "dropinStorageTemplate",
+            "name": "deskStorageTemplate",
             "properties": {
               "mode": "Incremental",
               "templateLink": {
-                 "uri":"[variables('dropinStorageARMTemplateURI')]",
+                 "uri":"[variables('deskStorageARMTemplateURI')]",
                  "contentVersion":"1.0.0.0"
               },
               "parameters": {}
