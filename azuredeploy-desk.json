@@ -9,7 +9,8 @@
     "variables": {
         "deskStorageAccountName": "[concat('desk' , uniquestring(resourceGroup().id))]",
         "cosmosDBAccountName": "[concat('cosmosdb' , uniquestring(resourceGroup().id))]",
-        "webAppASPName": "[concat('ASP-website-', uniquestring(resourceGroup().id) )]"
+        "webAppASPName": "[concat('ASP-website-', uniquestring(resourceGroup().id) )]",
+        "webAppPackageURL": "https://github.com/l8518/azure-video-indexer-desk/releases/latest/download/frontend-webapp.zip"
     },
     "resources": [
         {
@@ -73,9 +74,9 @@
             }
         },
         {
-            "type": "Microsoft.Web/sites",
             "apiVersion": "2018-02-01",
             "name": "[parameters('websiteName')]",
+            "type": "Microsoft.Web/sites",
             "location": "[resourceGroup().location]",
             "dependsOn": [
                 "[concat('Microsoft.Web/serverfarms/', variables('webAppASPName'))]",
@@ -86,6 +87,10 @@
                 "name": "[parameters('websiteName')]",
                 "siteConfig": {
                     "appSettings": [
+                        {
+                            "name": "WEBSITE_NODE_DEFAULT_VERSION",
+                            "value": "8.9.4"
+                        },
                         {
                             "name": "COSMOSDB_CONNECTION",
                             "value" : "[concat('AccountEndpoint=', reference(resourceId('Microsoft.DocumentDb/databaseAccounts/', variables('cosmosDBAccountName'))).documentEndpoint, ';AccountKey=', listKeys(resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosDBAccountName')), providers('Microsoft.DocumentDB', 'databaseAccounts').apiVersions[0]).primaryMasterKey, ';')]"
@@ -99,30 +104,49 @@
                             "value": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('deskStorageAccountName')), '2015-05-01-preview').key1]"
                         }
                     ],
-                    "linuxFxVersion": "NODE|10.14",
+                    "metadata": [
+                        {
+                            "name": "CURRENT_STACK",
+                            "value": "node"
+                        }
+                    ],
                     "alwaysOn": "true"
                 },
                 "serverFarmId": "[concat('/subscriptions/', subscription().subscriptionId ,'/resourcegroups/', resourceGroup().name, '/providers/Microsoft.Web/serverfarms/', variables('webAppASPName'))]",
-                "clientAffinityEnabled": false
-            }
+                "clientAffinityEnabled": true
+            },
+            "resources": [
+                {
+                    "name": "MSDeploy",
+                    "type": "extensions",
+                    "location": "[resourceGroup().location]",
+                    "apiVersion": "2015-08-01",
+                    "dependsOn": [
+                        "[concat('Microsoft.Web/sites/', parameters('websiteName'))]"
+                    ],
+                    "properties": {
+                        "packageUri": "[variables('webAppPackageURL')]"
+                    }
+                }
+            ]
         },
         {
-            "type": "Microsoft.Web/serverfarms",
             "apiVersion": "2018-02-01",
             "name": "[variables('webAppASPName')]",
+            "type": "Microsoft.Web/serverfarms",
             "location": "[resourceGroup().location]",
+            "kind": "",
+            "tags": {},
             "dependsOn": [],
-            "sku": {
-                "Tier": "PremiumV2",
-                "Name": "P1v2"
-            },
-            "kind": "linux",
             "properties": {
                 "name": "[variables('webAppASPName')]",
-                "workerSize": "3",
-                "workerSizeId": "3",
-                "numberOfWorkers": "1",
-                "reserved": true
+                "workerSize": "0",
+                "workerSizeId": "0",
+                "numberOfWorkers": "1"
+            },
+            "sku": {
+                "Tier": "Standard",
+                "Name": "S1"
             }
         }
     ],
