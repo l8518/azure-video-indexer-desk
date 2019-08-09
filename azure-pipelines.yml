@@ -22,3 +22,28 @@ jobs:
     - template: azure-pipelines-function-build.yml
       parameters:
         functionName: videoindexer-azfunctions
+- job: Build_Frontend_App
+  pool:
+    vmImage: 'ubuntu-latest'
+  steps:
+  - task: Npm@1
+    inputs:
+      command: 'install'
+      workingDir: 'vi-desk-frontend'
+  - task: Npm@1
+    inputs:
+      command: 'custom'
+      workingDir: 'vi-desk-frontend'
+      customCommand: 'run build'
+  - task: ArchiveFiles@2
+    inputs:
+      rootFolderOrFile: 'vi-desk-frontend'
+      includeRootFolder: false
+      archiveType: 'zip'
+      archiveFile: '$(Build.ArtifactStagingDirectory)/frontend-webapp.zip'
+      replaceExistingArchive: true
+  - task: PublishBuildArtifacts@1
+    inputs:
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+      ArtifactName: 'webapp'
+      publishLocation: 'Container'
