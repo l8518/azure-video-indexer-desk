@@ -2,10 +2,14 @@
     "contentVersion": "1.0.0.0",
     "$schema": "http://schema.management.azure.com/schemas/2018-05-01/deploymentTemplate.json#",
     "parameters": {
+        "websiteName": {
+            "type": "string"
+        }
     },
     "variables": {
         "deskStorageAccountName": "[concat('desk' , uniquestring(resourceGroup().id))]",
-        "cosmosDBAccountName": "[concat('cosmosdb' , uniquestring(resourceGroup().id))]"
+        "cosmosDBAccountName": "[concat('cosmosdb' , uniquestring(resourceGroup().id))]",
+        "webAppASPName": "[concat('ASP-website-', uniquestring(resourceGroup().id) )]"
     },
     "resources": [
         {
@@ -16,29 +20,31 @@
             "location": "[resourceGroup().location]",
             "sku": {
                 "name": "Standard_LRS"
-            }
-        },
-        {
-            "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
-            "apiVersion": "2019-04-01",
-            "name": "[concat(variables('deskStorageAccountName'), '/default/drop')]",
-            "dependsOn": [
-                "[variables('deskStorageAccountName')]"
-            ],
-            "properties": {
-                "publicAccess": "None"
-            }
-        },
-        {
-            "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
-            "apiVersion": "2019-04-01",
-            "name": "[concat(variables('deskStorageAccountName'), '/default/faceimgs')]",
-            "dependsOn": [
-                "[variables('deskStorageAccountName')]"
-            ],
-            "properties": {
-                "publicAccess": "Blob"
-            }
+            },
+            "resources": [
+                {
+                    "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+                    "apiVersion": "2019-04-01",
+                    "name": "[concat(variables('deskStorageAccountName'), '/default/drop')]",
+                    "dependsOn": [
+                        "[variables('deskStorageAccountName')]"
+                    ],
+                    "properties": {
+                        "publicAccess": "None"
+                    }
+                },
+                {
+                    "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+                    "apiVersion": "2019-04-01",
+                    "name": "[concat(variables('deskStorageAccountName'), '/default/faceimgs')]",
+                    "dependsOn": [
+                        "[variables('deskStorageAccountName')]"
+                    ],
+                    "properties": {
+                        "publicAccess": "Blob"
+                    }
+                }
+            ]
         },
         {
             "apiVersion": "2015-04-08",
@@ -65,12 +71,65 @@
             "tags": {
                 "defaultExperience": "Core (SQL)"
             }
+        },
+        {
+            "type": "Microsoft.Web/sites",
+            "apiVersion": "2018-02-01",
+            "name": "[parameters('websiteName')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[concat('Microsoft.Web/serverfarms/', variables('webAppASPName'))]",
+                "[concat('Microsoft.DocumentDb/databaseAccounts/', variables('cosmosDBAccountName'))]",
+                "[variables('deskStorageAccountName')]"
+            ],
+            "properties": {
+                "name": "[parameters('websiteName')]",
+                "siteConfig": {
+                    "appSettings": [
+                        {
+                            "name": "COSMOSDB_CONNECTION",
+                            "value" : "[concat('AccountEndpoint=', reference(resourceId('Microsoft.DocumentDb/databaseAccounts/', variables('cosmosDBAccountName'))).documentEndpoint, ';AccountKey=', listKeys(resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosDBAccountName')), providers('Microsoft.DocumentDB', 'databaseAccounts').apiVersions[0]).primaryMasterKey, ';')]"
+                        },
+                        {
+                            "name": "DESK_STORAGE_ACC_NAME",
+                            "value": "[variables('deskStorageAccountName')]"
+                        },
+                        {
+                            "name": "DESK_STORAGE_KEY",
+                            "value": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('deskStorageAccountName')), '2015-05-01-preview').key1]"
+                        }
+                    ],
+                    "linuxFxVersion": "NODE|10.14",
+                    "alwaysOn": "true"
+                },
+                "serverFarmId": "[concat('/subscriptions/', subscription().subscriptionId ,'/resourcegroups/', resourceGroup().name, '/providers/Microsoft.Web/serverfarms/', variables('webAppASPName'))]",
+                "clientAffinityEnabled": false
+            }
+        },
+        {
+            "type": "Microsoft.Web/serverfarms",
+            "apiVersion": "2018-02-01",
+            "name": "[variables('webAppASPName')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [],
+            "sku": {
+                "Tier": "PremiumV2",
+                "Name": "P1v2"
+            },
+            "kind": "linux",
+            "properties": {
+                "name": "[variables('webAppASPName')]",
+                "workerSize": "3",
+                "workerSizeId": "3",
+                "numberOfWorkers": "1",
+                "reserved": true
+            }
         }
     ],
     "outputs": {
-        "COSMOSDB_CONNECTION" : {
+        "COSMOSDB_CONNECTION": {
             "type": "string",
-            "value" : "[concat('AccountEndpoint=', reference(resourceId('Microsoft.DocumentDb/databaseAccounts/', variables('cosmosDBAccountName'))).documentEndpoint, ';AccountKey=', listKeys(resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosDBAccountName')), providers('Microsoft.DocumentDB', 'databaseAccounts').apiVersions[0]).primaryMasterKey, ';')]"
+            "value": "[concat('AccountEndpoint=', reference(resourceId('Microsoft.DocumentDb/databaseAccounts/', variables('cosmosDBAccountName'))).documentEndpoint, ';AccountKey=', listKeys(resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosDBAccountName')), providers('Microsoft.DocumentDB', 'databaseAccounts').apiVersions[0]).primaryMasterKey, ';')]"
         }
     }
 }
