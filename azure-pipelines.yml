@@ -37,11 +37,12 @@ jobs:
       customCommand: 'run build'
   - task: ArchiveFiles@2
     inputs:
-      rootFolderOrFile: 'vi-desk-frontend/dist'
+      rootFolderOrFile: 'vi-desk-frontend'
       includeRootFolder: false
       archiveType: 'zip'
       archiveFile: '$(Build.ArtifactStagingDirectory)/frontend-webapp.zip'
       replaceExistingArchive: true
+  
   - task: PublishBuildArtifacts@1
     inputs:
       PathtoPublish: '$(Build.ArtifactStagingDirectory)'
