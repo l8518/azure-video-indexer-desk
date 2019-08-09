@@ -2,7 +2,7 @@
     "contentVersion": "1.0.0.0",
     "$schema": "http://schema.management.azure.com/schemas/2018-05-01/deploymentTemplate.json#",
     "parameters": {
-        "name": {
+        "websiteName": {
             "type": "string"
         },
         "videoIndexerAccountId": {
@@ -36,7 +36,6 @@
                  "contentVersion":"1.0.0.0"
               },
               "parameters": {
-                 "name":{"value": "[parameters('name')]"},
                  "videoIndexerAccountId":{"value": "[parameters('videoIndexerAccountId')]"},
                  "videoIndexerSubscriptionKey":{"value": "[parameters('videoIndexerSubscriptionKey')]"},
                  "videoIndexerRegion":{"value": "[parameters('videoIndexerRegion')]"}
@@ -57,7 +56,6 @@
                  "contentVersion":"1.0.0.0"
               },
               "parameters": {
-                 "name":{"value": "[parameters('name')]"},
                  "videoIndexerAccountId":{"value": "[parameters('videoIndexerAccountId')]"},
                  "videoIndexerSubscriptionKey":{"value": "[parameters('videoIndexerSubscriptionKey')]"},
                  "videoIndexerRegion":{"value": "[parameters('videoIndexerRegion')]"},
@@ -78,7 +76,9 @@
                  "uri":"[variables('deskStorageARMTemplateURI')]",
                  "contentVersion":"1.0.0.0"
               },
-              "parameters": {}
+              "parameters": {
+                "websiteName":{"value": "[parameters('websiteName')]"}
+              }
             }
          }
     ]

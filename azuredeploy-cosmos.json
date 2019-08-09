@@ -2,9 +2,6 @@
     "contentVersion": "1.0.0.0",
     "$schema": "http://schema.management.azure.com/schemas/2018-05-01/deploymentTemplate.json#",
     "parameters": {
-        "name": {
-            "type": "string"
-        },
         "videoIndexerAccountId": {
             "type": "securestring"
         },
@@ -19,12 +16,11 @@
         }
     },
     "variables": {
-        "cosmoFunctionAppName": "[concat(parameters('name'), '-cosmo')]",
+        "cosmoFunctionAppName": "[concat( 'cosmofunc', uniquestring(variables('cosmoFunctionAppName'), resourceGroup().id))]",
         "cosmoFunctionSAName": "[concat( 'cosmofs', uniquestring(variables('cosmoFunctionAppName'), resourceGroup().id))]",
         "cosmoAppInsightsName": "[variables('cosmoFunctionAppName')]",
         "cosmoFunctionAppPackageURL": "https://github.com/l8518/azure-video-indexer-desk/releases/latest/download/cosmo-azfunctions_binaries.zip",
-        "deskStorageAccountName": "[concat('desk' , uniquestring(resourceGroup().id))]",
-        "cosmosDBAccountName": "[concat('cosmosdb' , uniquestring(resourceGroup().id))]"
+        "deskStorageAccountName": "[concat('desk' , uniquestring(resourceGroup().id))]"
     },
     "resources": [
         {

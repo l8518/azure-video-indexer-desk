@@ -2,9 +2,6 @@
     "contentVersion": "1.0.0.0",
     "$schema": "http://schema.management.azure.com/schemas/2018-05-01/deploymentTemplate.json#",
     "parameters": {
-        "name": {
-            "type": "string"
-        },
         "videoIndexerAccountId": {
             "type": "securestring"
         },
@@ -16,8 +13,8 @@
         }
     },
     "variables": {
-        "cosmoFunctionAppName": "[concat(parameters('name'), '-cosmo')]",
-        "videoFunctionAppName": "[concat(parameters('name'), '-video')]",
+        "cosmoFunctionAppName": "[concat( 'cosmofunc', uniquestring(variables('cosmoFunctionAppName'), resourceGroup().id))]",
+        "videoFunctionAppName": "[concat( 'videofunc', uniquestring(variables('videoFunctionAppName'), resourceGroup().id))]",
         "videoFunctionSAName": "[concat( 'videofs', uniquestring(variables('videoFunctionAppName'), resourceGroup().id))]",
         "videoAppInsightsName": "[variables('videoFunctionAppName')]",
         "deskStorageAccountName": "[concat('desk' , uniquestring(resourceGroup().id))]",
@@ -93,7 +90,7 @@
                 {
                     "type": "Microsoft.Storage/storageAccounts/providers/roleAssignments",
                     "apiVersion": "2017-05-01",
-                    "name": "[concat(variables('deskStorageAccountName'), '/Microsoft.Authorization/', guid(resourceGroup().id, subscription().subscriptionId, parameters('name'), 'funcStorageAuth'))]",
+                    "name": "[concat(variables('deskStorageAccountName'), '/Microsoft.Authorization/', guid(resourceGroup().id, subscription().subscriptionId, 'funcStorageAuth'))]",
                     "properties": {
                         "roleDefinitionId": "[variables('Contributor')]",
                         "principalId": "[reference(concat('Microsoft.Web/sites/', variables('videoFunctionAppName')), '2018-02-01', 'Full').identity.principalId]"
