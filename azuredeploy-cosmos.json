@@ -16,7 +16,7 @@
         }
     },
     "variables": {
-        "cosmoFunctionAppName": "[concat( 'cosmofunc', uniquestring(variables('cosmoFunctionAppName'), resourceGroup().id))]",
+        "cosmoFunctionAppName": "[concat( 'cosmofunc-', uniquestring(resourceGroup().id))]",
         "cosmoFunctionSAName": "[concat( 'cosmofs', uniquestring(variables('cosmoFunctionAppName'), resourceGroup().id))]",
         "cosmoAppInsightsName": "[variables('cosmoFunctionAppName')]",
         "cosmoFunctionAppPackageURL": "https://github.com/l8518/azure-video-indexer-desk/releases/latest/download/cosmo-azfunctions_binaries.zip",

@@ -13,8 +13,8 @@
         }
     },
     "variables": {
-        "cosmoFunctionAppName": "[concat( 'cosmofunc', uniquestring(variables('cosmoFunctionAppName'), resourceGroup().id))]",
-        "videoFunctionAppName": "[concat( 'videofunc', uniquestring(variables('videoFunctionAppName'), resourceGroup().id))]",
+        "cosmoFunctionAppName": "[concat( 'cosmofunc-', uniquestring(resourceGroup().id))]",
+        "videoFunctionAppName": "[concat( 'videofunc-', uniquestring(resourceGroup().id))]",
         "videoFunctionSAName": "[concat( 'videofs', uniquestring(variables('videoFunctionAppName'), resourceGroup().id))]",
         "videoAppInsightsName": "[variables('videoFunctionAppName')]",
         "deskStorageAccountName": "[concat('desk' , uniquestring(resourceGroup().id))]",
