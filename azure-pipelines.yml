@@ -37,7 +37,7 @@ jobs:
       customCommand: 'run build'
   - task: ArchiveFiles@2
     inputs:
-      rootFolderOrFile: 'vi-desk-frontend'
+      rootFolderOrFile: 'vi-desk-frontend/dist'
       includeRootFolder: false
       archiveType: 'zip'
       archiveFile: '$(Build.ArtifactStagingDirectory)/frontend-webapp.zip'
