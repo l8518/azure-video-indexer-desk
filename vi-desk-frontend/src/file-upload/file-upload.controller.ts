@@ -15,9 +15,11 @@ export class FileUploadController {
 
     @Post('new')
     @UseInterceptors(FileInterceptor('file'))
-    uploadFile(@UploadedFile() file) {
-        this.fileUploadService.uploadToBlobStorage(file.originalname, file.buffer, file.size);
+    async uploadFile(@UploadedFile() file) {
+        console.log('upload posted');
+        await this.fileUploadService.uploadToBlobStorage(file.originalname, file.buffer, file.size);
         // Todo: Response to user
+        console.log('upload route finished');
         return;
     }
 
