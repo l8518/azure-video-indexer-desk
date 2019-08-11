@@ -1,11 +1,18 @@
-
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8" />
-    <title>App</title>
-  </head>
-  <body>
-    <b>From the service 😎: </b>{{ message }}
-  </body>
+
+<head>
+  <meta charset="utf-8" />
+  <title>App</title>
+</head>
+
+<body>
+  <ul>
+    {{#each indexed_videos}}
+    <li><a href="/video-insights/{{this.id}}">{{this.fileName}}</a>
+      </li>
+    {{/each}}
+  </ul>
+</body>
+
 </html>
