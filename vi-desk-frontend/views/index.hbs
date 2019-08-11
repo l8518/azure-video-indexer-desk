@@ -1,18 +1,13 @@
-<!DOCTYPE html>
-<html>
-
-<head>
-  <meta charset="utf-8" />
-  <title>App</title>
-</head>
-
-<body>
-  <ul>
-    {{#each indexed_videos}}
-    <li><a href="/video-insights/{{this.id}}">{{this.fileName}}</a>
-      </li>
-    {{/each}}
-  </ul>
-</body>
-
-</html>
+<div class="jumbotron">
+  <h1 class="display-4">Welcome to the Video Indexer Desk</h1>
+  <p class="lead">The Video Indexer Desk is a showcase to exemplify the capabilities of the Video Indexer and its APIs.</p>
+  <hr class="my-4">
+  <p>The showcase allows you to process any video and use analytics to extensive insights on your uploaded material.</p>
+  <a class="btn btn-primary btn-lg" href="https://github.com/l8518/azure-video-indexer-desk" role="button">Learn more</a>
+</div>
+<h3>Videos Indexed:</h3>
+<div class="list-group">
+  {{#each indexed_videos}}
+  <a href="/video-insights/{{this.id}}" class="list-group-item list-group-item-action">{{this.fileName}}</a>
+  {{/each}}
+</div>

@@ -1,0 +1,36 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="#">
+        <img src="/logo.svg" width="30" height="30" class="d-inline-block align-top" alt="">
+        Video Indexer Desk
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+                <a class="nav-link" href="./index.html">Home <span class="sr-only"></span></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/file-upload/">File Upload</a>
+            </li>
+        </ul>
+
+        {{!-- Upload Form --}}
+        <form action="/file-upload/new" class="form-inline my-2 my-lg-0" method="POST" enctype="multipart/form-data">
+            <div class="input-group mb-3">
+                <div class="custom-file">
+                    <input type="file" name="file" class="custom-file-input" id="inputGroupFileUpload">
+                    <label class="custom-file-label" for="inputGroupFileUpload"
+                        aria-describedby="inputGroupFileAddon02">Choose file</label>
+                </div>
+                <div class="input-group-append">
+                    <button class="input-group-text" id="inputGroupFileAddon02" type="submit"
+                        class="btn">Upload</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</nav>
