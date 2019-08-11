@@ -1,5 +1,15 @@
-{{stringified}}
 
-{{#each faces}}
-<img src="{{this.uri}}">
-{{/each}}
+<div class="row text-center">
+    {{#each faces}}
+    <div class="col-2">
+        <div class="col-12">
+            <img height="50px" width="50px" class="rounded-circle" src="{{this.uri}}" data-holder-rendered="true">
+        </div>
+        <div class="col-12">
+            Todo: Name + Description
+        </div>
+    </div>
+    {{/each}}
+</div>
+
+{{stringified}}
