@@ -7,6 +7,7 @@
         }
     },
     "variables": {
+        "videoFunctionAppName": "[concat( 'videofunc-', uniquestring(resourceGroup().id))]",
         "deskStorageAccountName": "[concat('desk' , uniquestring(resourceGroup().id))]",
         "cosmosDBAccountName": "[concat('cosmosdb' , uniquestring(resourceGroup().id))]",
         "webAppASPName": "[concat('ASP-website-', uniquestring(resourceGroup().id) )]",
@@ -96,11 +97,11 @@
                             "value" : "[concat('AccountEndpoint=', reference(resourceId('Microsoft.DocumentDb/databaseAccounts/', variables('cosmosDBAccountName'))).documentEndpoint, ';AccountKey=', listKeys(resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosDBAccountName')), providers('Microsoft.DocumentDB', 'databaseAccounts').apiVersions[0]).primaryMasterKey, ';')]"
                         },
                         {
-                            "name": "DESK_STORAGE_ACC_NAME",
+                            "name": "BLOB_STORAGE_NAME",
                             "value": "[variables('deskStorageAccountName')]"
                         },
                         {
-                            "name": "DESK_STORAGE_KEY",
+                            "name": "BLOB_STORAGE_KEY",
                             "value": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('deskStorageAccountName')), '2015-05-01-preview').key1]"
                         }
                     ],
@@ -147,6 +148,21 @@
             "sku": {
                 "Tier": "Standard",
                 "Name": "S1"
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites",
+            "kind": "functionapp",
+            "name": "[variables('videoFunctionAppName')]",
+            "apiVersion": "2016-03-01",
+            "location": "[resourceGroup().location]",
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "name": "[variables('videoFunctionAppName')]",
+                "clientAffinityEnabled": false,
+                "reserved": false
             }
         }
     ],
