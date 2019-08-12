@@ -93,7 +93,7 @@
                             "value": "8.9.4"
                         },
                         {
-                            "name": "COSMOSDB_CONNECTION",
+                            "name": "COSMOS_CONNECTION",
                             "value" : "[concat('AccountEndpoint=', reference(resourceId('Microsoft.DocumentDb/databaseAccounts/', variables('cosmosDBAccountName'))).documentEndpoint, ';AccountKey=', listKeys(resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosDBAccountName')), providers('Microsoft.DocumentDB', 'databaseAccounts').apiVersions[0]).primaryMasterKey, ';')]"
                         },
                         {
