@@ -1,4 +1,4 @@
-import { Controller, Get, Render, Post, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { Controller, Get, Render, Post, UseInterceptors, UploadedFile, Res } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express/multer';
 import { FileUploadService } from './file-upload.service';
 
@@ -15,12 +15,12 @@ export class FileUploadController {
 
     @Post('new')
     @UseInterceptors(FileInterceptor('file'))
-    async uploadFile(@UploadedFile() file) {
+    async uploadFile(@UploadedFile() file, @Res() res) {
         console.log('upload posted');
         await this.fileUploadService.uploadToBlobStorage(file.originalname, file.buffer, file.size);
         // Todo: Response to user
         console.log('upload route finished');
-        return;
+        return res.redirect('./');
     }
 
 }
