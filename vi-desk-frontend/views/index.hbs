@@ -1,13 +1,48 @@
 <div class="jumbotron">
-  <h1 class="display-4">Welcome to the Video Indexer Desk</h1>
-  <p class="lead">The Video Indexer Desk is a showcase to exemplify the capabilities of the Video Indexer and its APIs.</p>
-  <hr class="my-4">
-  <p>The showcase allows you to process any video and use analytics to extensive insights on your uploaded material.</p>
-  <a class="btn btn-primary btn-lg" href="https://github.com/l8518/azure-video-indexer-desk" role="button">Learn more</a>
-</div>
-<h3>Videos Indexed:</h3>
-<div class="list-group">
+  <h1 class="display-4">Welcome to the Video Indexer Desk
+    <button class="btn btn-secondary btn-sm fas fa-angle-down" type="button" data-toggle="collapse"
+      data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample" />
+  </h1>
+
+  <div class="collapse" id="collapseExample">
+    <hr>
+      <p>The showcase allows you to process any video and use analytics to retrieve extensive insights from your uploaded material.
+    </p>
+      <a class="btn btn-primary btn-sm" href="https://github.com/l8518/azure-video-indexer-desk" role="button">Learn
+      more</a>
+  </div>
+  </div>
+
   {{#each indexed_videos}}
-  <a href="/video-insights/{{this.id}}" class="list-group-item list-group-item-action">{{this.fileName}}</a>
-  {{/each}}
-</div>
+  
+<div class="card mb-2">
+    <div class="card-header">
+      {{ this.fileName }}
+    </div>
+    <div class="card-body">
+      <h5 class="card-title">
+        A new video was uploaded, we identified:
+      </h5>
+      <p class="card-text">
+        {{#if this.labels}}
+          <p>
+            Top Labels:
+            {{#each this.labels}}
+                <span class="badge badge-secondary">{{ this.name }} ( {{ this.meanConfidence }} )</span>
+            {{/each}}
+          </p>
+        {{/if}}
+
+        {{#if this.namedPeople}}
+          <p>
+            Top People:
+            {{#each this.namedPeople}}
+                <span class="badge badge-secondary">{{ this.name }} ( {{ this.confidence }} )</span>
+            {{/each}}
+          </p>
+        {{/if}}
+      </p>
+      <a href="/video-insights/{{this.id}}" class="btn btn-primary">Go to full insights</a>
+    </div>
+  </div>
+{{/each}}

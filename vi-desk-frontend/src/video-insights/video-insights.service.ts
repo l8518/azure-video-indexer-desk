@@ -21,7 +21,7 @@ export class VideoInsightsService {
     async findAll() {
 
         let sqlQuery: SqlQuerySpec = {
-            query: 'SELECT vii.fileName, vii.id FROM VideoIndexerInsights vii'
+            query: 'SELECT vii.fileName, vii.id, vii.insights.labels, vii.insights.namedPeople FROM VideoIndexerInsights vii'
         }
 
         let result = this.cosmosClient.database('VideoIndexer')
@@ -29,8 +29,31 @@ export class VideoInsightsService {
             .query(sqlQuery);
 
         let resp = await result.fetchAll();
-        console.log(resp);
         return resp;
+    }
+
+    filterAndTransformForTopNSignificantInstances(labels: Array<any>, n = 5) {
+        if (isNullOrUndefined(labels)) {
+            return labels;
+        }
+
+        // filters the labels with a confidence higher 90%
+        labels = labels.map((value: any, index: number, array: any[]) => {
+            let aggConfidence = value.instances.reduce((total, currentValue, currentIndex, arr) => {
+                return total + currentValue.confidence
+            }, 0)
+
+            value.meanConfidence = (aggConfidence / value.instances.length).toPrecision(2)
+            return value
+
+        })
+
+        // sort descending
+        labels = labels.sort((a, b) => {
+            return b.meanConfidence - a.meanConfidence;
+        })
+
+        return labels.slice(0, n);
     }
 
     async findOne(id: string) {
@@ -59,7 +82,7 @@ export class VideoInsightsService {
             faces = faces.filter((value) => {
                 return (!isNullOrUndefined(value.referenceId))
             })
-            
+
         }
         // Process and return face data
         let preparedFaces = faces.map((value: any, index: number, array: any[]) => {
