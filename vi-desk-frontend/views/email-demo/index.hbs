@@ -1,0 +1,33 @@
+<div id="emailbox" class="">
+  <div id="emailstream">
+    <div class="container pl-4 pr-4 pt-2">
+      {{#each indexed_videos}}
+      <div class="row mb-2 pr-2">
+        <div class="col-12">
+          noreply@VideoIndexerDesk.demo
+        </div>
+        <div class="col-10 text-truncate">
+          <small>{{ this.fileName }}</small>
+        </div>
+        <div class="col-2">
+          <small>1/11/2019</small>
+        </div>
+        <div class="col-10 text-truncate">
+          <small>
+            New upload, we found
+            {{#each this.labels}}
+                {{ this.name }} ( {{ this.meanConfidence }} )
+            {{/each}}
+          </small>
+        </div>
+      </div>
+      {{/each}}
+    </div>
+  </div>
+  <div id="emailcontent">
+
+  </div>
+    <div id="emailfrom">
+      Video Indexer
+  </div>
+</div>
