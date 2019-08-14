@@ -7,40 +7,33 @@ trigger:
 - master
 
 jobs:
-- job: Build_Cosmos_DB_Function_App
+- job: Build_FunctionApp
   pool:
     vmImage: 'ubuntu-latest'
   steps:
     - template: azure-pipelines-function-build.yml
       parameters:
-        functionName: cosmo-azfunctions
+        functionName: functionapp
 
-- job: Build_Video_Indexer_Function_App
-  pool:
-    vmImage: 'ubuntu-latest'
-  steps:
-    - template: azure-pipelines-function-build.yml
-      parameters:
-        functionName: videoindexer-azfunctions
-- job: Build_Frontend_App
+- job: Build_FrontendApp
   pool:
     vmImage: 'ubuntu-latest'
   steps:
   - task: Npm@1
     inputs:
       command: 'install'
-      workingDir: 'vi-desk-frontend'
+      workingDir: 'frontend'
   - task: Npm@1
     inputs:
       command: 'custom'
-      workingDir: 'vi-desk-frontend'
+      workingDir: 'frontend'
       customCommand: 'run build'
   - task: ArchiveFiles@2
     inputs:
-      rootFolderOrFile: 'vi-desk-frontend'
+      rootFolderOrFile: 'frontend'
       includeRootFolder: false
       archiveType: 'zip'
-      archiveFile: '$(Build.ArtifactStagingDirectory)/frontend-webapp.zip'
+      archiveFile: '$(Build.ArtifactStagingDirectory)/frontend.zip'
       replaceExistingArchive: true
   
   - task: PublishBuildArtifacts@1

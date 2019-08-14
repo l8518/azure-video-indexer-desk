@@ -1,0 +1,50 @@
+<div id="emailbox" class="">
+  <div id="emailstream">
+    <div class="container pl-4 pr-4 pt-2">
+      {{#each indexed_videos}}
+      <a href="{{this.id}}">
+      <div class="row mb-2 pr-2">
+        <div class="col-12">
+          noreply@VideoIndexerDesk.demo
+        </div>
+        <div class="col-7 text-truncate">
+          <small>{{ this.fileName }}</small>
+        </div>
+        <div class="col-3 ml-auto">
+            <small class="ml-auto">1/11/2019</small>
+        </div>
+        <div class="col-10 text-truncate">
+          <small>
+            New upload, we found
+            {{#each this.labels}}
+                {{ this.name }} ( {{ this.meanConfidence }} )
+            {{/each}}
+          </small>
+        </div>
+      </div>
+      </a>
+      {{/each}}
+    </div>
+  </div>
+  <div id="emailcontent" class="p-2">
+
+    Hi,
+
+    a new video with the filename {{selected_video.fileName }} was uploaded and successfully indexed.
+    <br />
+    <br />
+    {{#if selected_video.insights.labels }}
+      <b>Labels:</b> {{#each selected_video.insights.labels }} {{this.name}} {{#unless @last}},{{/unless}} {{/each}}
+    {{/if}}
+
+    <br />
+    <br />
+    {{#if selected_video.insights.topics }}
+      <b>Themen:</b> {{#each selected_video.insights.topics }} {{this.name}} {{#unless @last}},{{/unless}} {{/each}}
+    {{/if}}
+
+  </div>
+    <div id="emailfrom" class="text-truncate">
+      <p>From: Video Indexer &lt;noreply@VideoIndexerDesk.demo>&gt;</p>
+  </div>
+</div>

@@ -1,9 +1,0 @@
-local.settings.json
-bin
-node_modules
-
-# Docker files
-Development.Dockerfile
-Dockerfile
-docker-compose.production-build.yml
-docker-compose.yml

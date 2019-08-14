@@ -1,0 +1,117 @@
+{
+    "contentVersion": "1.0.0.0",
+    "$schema": "http://schema.management.azure.com/schemas/2018-05-01/deploymentTemplate.json#",
+    "parameters": {
+        "videoIndexerAccountId": {
+            "type": "securestring"
+        },
+        "videoIndexerSubscriptionKey": {
+            "type": "securestring"
+        },
+        "videoIndexerRegion": {
+            "type": "string"
+        },
+        "COSMOS_CONNECTION": {
+            "type": "string"
+        },
+        "FUNCTION_ENDPOINT": {
+            "type": "string"
+        }
+    },
+    "variables": {
+        "functionAppName": "[concat( 'fapp', uniquestring(resourceGroup().id))]",
+        "webappStorageName": "[concat('webstore' , uniquestring(resourceGroup().id))]",
+        "functionName": "IndexNewUploadedFile",
+        "functionUrl": "[concat('https://', variables('functionAppName'),'.azurewebsites.net/runtime/webhooks/eventgrid?functionName=', variables('functionName'),'&code=')]"
+    },
+    "resources": [{
+            "type": "Microsoft.Storage/storageAccounts/providers/eventSubscriptions",
+            "name": "[concat(variables('webappStorageName'), '/Microsoft.EventGrid/', '/filedrop')]",
+            "location": "[resourceGroup().location]",
+            "apiVersion": "2019-06-01",
+            "properties": {
+                "topic": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Storage/StorageAccounts/', variables('webappStorageName'))]",
+                "destination": {
+                    "endpointType": "WebHook",
+                    "properties": {
+                        "endpointUrl": "[concat(variables('functionUrl'), listKeys(resourceId('Microsoft.Web/sites/host/', variables('functionAppName'), 'default'),'2016-08-01').systemkeys.eventgrid_extension)]"
+                    }
+                },
+                "filter": {
+                    "includedEventTypes": [
+                        "Microsoft.Storage.BlobCreated"
+                    ],
+                    "advancedFilters": [{
+                        "operatorType": "StringBeginsWith",
+                        "key": "subject",
+                        "values": [
+                            "/blobServices/default/containers/filedrop/"
+                        ]
+                    }]
+                },
+                "eventDeliverySchema": "EventGridSchema"
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites",
+            "kind": "functionapp",
+            "name": "[variables('functionAppName')]",
+            "apiVersion": "2016-03-01",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "siteConfig": {
+                    "appSettings": [{
+                            "name": "FUNCTIONS_WORKER_RUNTIME",
+                            "value": "node"
+                        },
+                        {
+                            "name": "AzureWebJobsStorage",
+                            "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('functionAppName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('functionAppName')), '2015-05-01-preview').key1)]"
+                        },
+                        {
+                            "name": "FUNCTIONS_EXTENSION_VERSION",
+                            "value": "~2"
+                        },
+                        {
+                            "name": "WEBSITE_NODE_DEFAULT_VERSION",
+                            "value": "10.14.1"
+                        },
+                        {
+                            "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+                            "value": "[reference(concat('microsoft.insights/components/', variables('functionAppName')), '2015-05-01').InstrumentationKey]"
+                        },
+                        {
+                            "name": "BLOB_STORAGE_NAME",
+                            "value": "[variables('webappStorageName')]"
+                        },
+                        {
+                            "name": "BLOB_STORAGE_KEY",
+                            "value": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('webappStorageName')), '2015-05-01-preview').key1]"
+                        },
+                        {
+                            "name": "VIDEO_INDEXER_ACCOUNT_ID",
+                            "value": "[parameters('videoIndexerAccountId')]"
+                        },
+                        {
+                            "name": "VIDEO_INDEXER_SUBSCRIPTION_KEY",
+                            "value": "[parameters('videoIndexerSubscriptionKey')]"
+                        },
+                        {
+                            "name": "VIDEO_INDEXER_REGION",
+                            "value": "[parameters('videoIndexerRegion')]"
+                        },
+                        {
+                            "name": "VIDEO_INDEXER_FINISHED_HOOK",
+                            "value": "[parameters('FUNCTION_ENDPOINT')]"
+                        },
+                        {
+                            "name": "COSMOSDB_CONNECTION",
+                            "value": "[parameters('COSMOS_CONNECTION')]"
+                        }
+                    ]
+                },
+                "name": "[variables('functionAppName')]"
+            }
+        }
+    ]
+}

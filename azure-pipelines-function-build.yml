@@ -7,7 +7,7 @@ steps:
 - task: DockerCompose@0
   inputs:
     containerregistrytype: 'Azure Container Registry'
-    dockerComposeFile: '${{ parameters.functionName }}/docker-compose.prodbuild.yml'
+    dockerComposeFile: '${{ parameters.functionName }}/docker-compose.build.yml'
     action: 'Build Services'
     currentWorkingDirectory: '$(System.DefaultWorkingDirectory)/${{ parameters.functionName }}'
     additionalImageTags: '$(Build.BuildId)'
@@ -15,7 +15,7 @@ steps:
   inputs:
     targetType: 'inline'
     script: |
-      id=$(docker create ${{ parameters.functionName }}-prodbuild:$(Build.BuildId))
+      id=$(docker create ${{ parameters.functionName }}-build:$(Build.BuildId))
       docker cp ${id}:/azfunc $(Build.BinariesDirectory)/${{ parameters.functionName }}
       docker rm -v $id
 - task: ArchiveFiles@2
@@ -23,7 +23,7 @@ steps:
     rootFolderOrFile: '$(Build.BinariesDirectory)/${{ parameters.functionName }}'
     includeRootFolder: false
     archiveType: 'zip'
-    archiveFile: '$(Build.ArtifactStagingDirectory)/${{ parameters.functionName }}_binaries.zip'
+    archiveFile: '$(Build.ArtifactStagingDirectory)/${{ parameters.functionName }}.zip'
     replaceExistingArchive: true
 - task: PublishBuildArtifacts@1
   inputs:

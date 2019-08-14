@@ -1,0 +1,8 @@
+version: '3.4'
+
+services:
+  app:
+    build:
+          context: .
+          target: functionapp-builder
+    image: functionapp-build

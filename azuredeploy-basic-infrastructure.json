@@ -1,0 +1,233 @@
+{
+    "contentVersion": "1.0.0.0",
+    "$schema": "http://schema.management.azure.com/schemas/2018-05-01/deploymentTemplate.json#",
+    "parameters": {
+        "uniqueWebsiteName": {
+            "type": "string"
+        }
+    },
+    "variables": {
+        "websiteName": "[parameters('uniqueWebsiteName')]",
+        "functionAppName": "[concat( 'fapp', uniquestring(resourceGroup().id))]",
+        "webappStorageName": "[concat('webstore' , uniquestring(resourceGroup().id))]",
+        "cosmosAccName": "[concat('cdb-' , uniquestring(resourceGroup().id))]",
+        "webappASPName": "[concat('webasp-', uniquestring(resourceGroup().id) )]",
+        "webAppPackageURL": "https://github.com/l8518/azure-video-indexer-desk/releases/latest/download/frontend.zip",
+        "videoFunctionAppPackageURL": "https://github.com/l8518/azure-video-indexer-desk/releases/latest/download/functionapp.zip"
+    },
+    "resources": [{
+            "type": "Microsoft.Storage/storageAccounts",
+            "kind": "StorageV2",
+            "apiVersion": "2019-04-01",
+            "name": "[variables('webappStorageName')]",
+            "location": "[resourceGroup().location]",
+            "sku": {
+                "name": "Standard_LRS"
+            },
+            "resources": [{
+                    "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+                    "apiVersion": "2019-04-01",
+                    "name": "[concat(variables('webappStorageName'), '/default/filedrop')]",
+                    "dependsOn": [
+                        "[variables('webappStorageName')]"
+                    ],
+                    "properties": {
+                        "publicAccess": "None"
+                    }
+                },
+                {
+                    "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+                    "apiVersion": "2019-04-01",
+                    "name": "[concat(variables('webappStorageName'), '/default/imgs')]",
+                    "dependsOn": [
+                        "[variables('webappStorageName')]"
+                    ],
+                    "properties": {
+                        "publicAccess": "None"
+                    }
+                }
+            ]
+        },
+        {
+            "apiVersion": "2015-04-08",
+            "kind": "GlobalDocumentDB",
+            "type": "Microsoft.DocumentDb/databaseAccounts",
+            "name": "[variables('cosmosAccName')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "databaseAccountOfferType": "Standard",
+                "locations": [{
+                    "id": "[concat(variables('cosmosAccName'), '-', resourceGroup().location)]",
+                    "failoverPriority": 0,
+                    "locationName": "[resourceGroup().location]"
+                }],
+                "enableMultipleWriteLocations": false,
+                "isVirtualNetworkFilterEnabled": false,
+                "virtualNetworkRules": [],
+                "ipRangeFilter": "",
+                "dependsOn": [],
+                "capabilities": []
+            },
+            "tags": {
+                "defaultExperience": "Core (SQL)"
+            }
+        },
+        {
+            "apiVersion": "2018-02-01",
+            "name": "[variables('websiteName')]",
+            "type": "Microsoft.Web/sites",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[variables('webappASPName')]",
+                "[variables('cosmosAccName')]",
+                "[variables('webappStorageName')]"
+            ],
+            "properties": {
+                "name": "[variables('websiteName')]",
+                "siteConfig": {
+                    "appSettings": [{
+                            "name": "WEBSITE_NODE_DEFAULT_VERSION",
+                            "value": "8.9.4"
+                        },
+                        {
+                            "name": "COSMOS_CONNECTION",
+                            "value": "[concat('AccountEndpoint=', reference(resourceId('Microsoft.DocumentDb/databaseAccounts/', variables('cosmosAccName'))).documentEndpoint, ';AccountKey=', listKeys(resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosAccName')), providers('Microsoft.DocumentDB', 'databaseAccounts').apiVersions[0]).primaryMasterKey, ';')]"
+                        },
+                        {
+                            "name": "BLOB_STORAGE_NAME",
+                            "value": "[variables('webappStorageName')]"
+                        },
+                        {
+                            "name": "BLOB_STORAGE_KEY",
+                            "value": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('webappStorageName')), '2015-05-01-preview').key1]"
+                        }
+                    ],
+                    "metadata": [{
+                        "name": "CURRENT_STACK",
+                        "value": "node"
+                    }],
+                    "alwaysOn": "true"
+                },
+                "serverFarmId": "[concat('/subscriptions/', subscription().subscriptionId ,'/resourcegroups/', resourceGroup().name, '/providers/Microsoft.Web/serverfarms/', variables('webAppASPName'))]",
+                "clientAffinityEnabled": true
+            },
+            "resources": [{
+                "name": "MSDeploy",
+                "type": "extensions",
+                "location": "[resourceGroup().location]",
+                "apiVersion": "2015-08-01",
+                "dependsOn": [
+                    "[concat('Microsoft.Web/sites/', variables('websiteName'))]"
+                ],
+                "properties": {
+                    "packageUri": "[variables('webAppPackageURL')]"
+                }
+            }]
+        },
+        {
+            "apiVersion": "2018-02-01",
+            "name": "[variables('webappASPName')]",
+            "type": "Microsoft.Web/serverfarms",
+            "location": "[resourceGroup().location]",
+            "kind": "",
+            "tags": {},
+            "dependsOn": [],
+            "properties": {
+                "name": "[variables('webappASPName')]",
+                "workerSize": "0",
+                "workerSizeId": "0",
+                "numberOfWorkers": "1"
+            },
+            "sku": {
+                "Tier": "Standard",
+                "Name": "S1"
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites",
+            "kind": "functionapp",
+            "name": "[variables('functionAppName')]",
+            "apiVersion": "2016-03-01",
+            "location": "[resourceGroup().location]",
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "name": "[variables('functionAppName')]",
+                "clientAffinityEnabled": false,
+                "reserved": false,
+                "siteConfig": {
+                    "appSettings": [{
+                            "name": "FUNCTIONS_WORKER_RUNTIME",
+                            "value": "node"
+                        },
+                        {
+                            "name": "AzureWebJobsStorage",
+                            "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('functionAppName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('functionAppName')), '2015-05-01-preview').key1)]"
+                        },
+                        {
+                            "name": "FUNCTIONS_EXTENSION_VERSION",
+                            "value": "~2"
+                        },
+                        {
+                            "name": "WEBSITE_NODE_DEFAULT_VERSION",
+                            "value": "10.14.1"
+                        },
+                        {
+                            "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+                            "value": "[reference(concat('microsoft.insights/components/', variables('functionAppName')), '2015-05-01').InstrumentationKey]"
+                        }
+                    ]
+                }
+            },
+            "resources": [{
+                "name": "MSDeploy",
+                "type": "extensions",
+                "location": "[resourceGroup().location]",
+                "apiVersion": "2015-08-01",
+                "dependsOn": [
+                    "[concat('Microsoft.Web/sites/', variables('functionAppName'))]"
+                ],
+                "properties": {
+                    "packageUri": "[variables('videoFunctionAppPackageURL')]"
+                }
+            }],
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('functionAppName'))]",
+                "[resourceId('Microsoft.Insights/components', variables('functionAppName'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "kind": "StorageV2",
+            "apiVersion": "2019-04-01",
+            "name": "[variables('functionAppName')]",
+            "location": "[resourceGroup().location]",
+            "sku": {
+                "name": "Standard_LRS"
+            }
+        },
+        {
+            "type": "Microsoft.Insights/components",
+            "apiVersion": "2015-05-01",
+            "name": "[variables('functionAppName')]",
+            "location": "[resourceGroup().location]",
+            "kind": "web",
+            "properties": {
+                "Application_Type": "other",
+                "ApplicationId": "[variables('functionAppName')]",
+                "Request_Source": "rest"
+            }
+        }
+    ],
+    "outputs": {
+        "COSMOS_CONNECTION": {
+            "type": "string",
+            "value": "[concat('AccountEndpoint=', reference(resourceId('Microsoft.DocumentDb/databaseAccounts/', variables('cosmosAccName'))).documentEndpoint, ';AccountKey=', listKeys(resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosAccName')), providers('Microsoft.DocumentDB', 'databaseAccounts').apiVersions[0]).primaryMasterKey, ';')]"
+        },
+        "FUNCTION_ENDPOINT": {
+            "type": "string",
+            "value": "[concat('https://', variables('functionAppName'),'.azurewebsites.net/api/OnIndexingFinished','?code=', listKeys(resourceId('Microsoft.Web/sites/functions', variables('functionAppName') , 'OnIndexingFinished' ) ,'2016-08-01').default)]"
+        }
+    }
+}

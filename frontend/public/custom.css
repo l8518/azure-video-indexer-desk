@@ -1,0 +1,67 @@
+#emailbox {
+    width: 1280px;
+    max-width: 1280px;
+    height: 692px;
+    max-height: 692px;
+    background-image: url('/email_template.png');
+    display: inline-block;
+    margin: auto;
+    margin-top: 25px;
+}
+
+#emailcontainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#emailstream {
+    background-color: white;
+    display: inline-block;
+    width: 360px;
+    height: 520px;
+    position: absolute;
+    margin-left: 175px;
+    margin-top: 148px;
+    font-size: 14px;
+    line-height: 1.428;
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+
+#emailstream .row:hover {
+    background-color: #E6F2FA;
+    border-inline-start: 4px solid #B1D6F0;
+}
+
+#emailstream .row {
+    border-inline-start: 4px solid transparent;
+}
+
+#emailstream a:hover {
+    text-decoration: none;
+}
+
+#emailstream a {
+    color: black;
+}
+
+#emailcontent {
+    background-color: white;
+    display: inline-block;
+    width: 735px;
+    height: 500px;
+    position: absolute;
+    margin-left: 545px;
+    margin-top: 170px;
+}
+
+#emailfrom {
+    background-color: white;
+    display: inline-block;
+    width: 400px;
+    height: 40px;
+    position: absolute;
+    margin-left: 600px;
+    margin-top: 120px;
+}

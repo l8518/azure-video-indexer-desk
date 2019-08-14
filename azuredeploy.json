@@ -20,66 +20,57 @@
         }
     },
     "variables": {
-        "deskStorageARMTemplateURI": "[concat(parameters('arm-template-folder-url'), '/azuredeploy-desk.json' )]",
-        "cosmosFunctionsARMTemplateURI": "[concat(parameters('arm-template-folder-url'), '/azuredeploy-cosmos.json' )]",
-        "videoFunctionsARMTemplateURI": "[concat(parameters('arm-template-folder-url'), '/azuredeploy-video.json' )]"
+        "postConfigARMURI": "[concat(parameters('arm-template-folder-url'), '/azuredeploy-post-config.json' )]",
+        "basicInfraARMURI": "[concat(parameters('arm-template-folder-url'), '/azuredeploy-basic-infrastructure.json' )]"
     },
-    "resources": [
-        {
+    "resources": [{
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2018-05-01",
-            "name": "videoFunctionTemplate",
+            "apiVersion": "2017-05-10",
+            "name": "postConfiguration",
             "properties": {
-              "mode": "Incremental",
-              "templateLink": {
-                "uri":"[variables('videoFunctionsARMTemplateURI')]",
-                 "contentVersion":"1.0.0.0"
-              },
-              "parameters": {
-                 "videoIndexerAccountId":{"value": "[parameters('videoIndexerAccountId')]"},
-                 "videoIndexerSubscriptionKey":{"value": "[parameters('videoIndexerSubscriptionKey')]"},
-                 "videoIndexerRegion":{"value": "[parameters('videoIndexerRegion')]"}
-               }
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('postConfigARMURI')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "videoIndexerAccountId": {
+                        "value": "[parameters('videoIndexerAccountId')]"
+                    },
+                    "videoIndexerSubscriptionKey": {
+                        "value": "[parameters('videoIndexerSubscriptionKey')]"
+                    },
+                    "videoIndexerRegion": {
+                        "value": "[parameters('videoIndexerRegion')]"
+                    },
+                    "COSMOS_CONNECTION": {
+                        "value": "[reference('basicInfrastructure').outputs.COSMOSDB_CONNECTION.value]"
+                    },
+                    "FUNCTION_ENDPOINT": {
+                        "value": "[reference('basicInfrastructure').outputs.FUNCTION_ENDPOINT.value]"
+                    }
+                }
             },
             "dependsOn": [
-                "cosmosFunctionTemplate"
+                "basicInfrastructure"
             ]
-         },
+        },
         {
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2018-05-01",
-            "name": "cosmosFunctionTemplate",
+            "apiVersion": "2017-05-10",
+            "name": "basicInfrastructure",
             "properties": {
-              "mode": "Incremental",
-              "templateLink": {
-                "uri":"[variables('cosmosFunctionsARMTemplateURI')]",
-                 "contentVersion":"1.0.0.0"
-              },
-              "parameters": {
-                 "videoIndexerAccountId":{"value": "[parameters('videoIndexerAccountId')]"},
-                 "videoIndexerSubscriptionKey":{"value": "[parameters('videoIndexerSubscriptionKey')]"},
-                 "videoIndexerRegion":{"value": "[parameters('videoIndexerRegion')]"},
-                 "cosmosdbConnection": {"value" : "[reference('deskStorageTemplate').outputs.COSMOSDB_CONNECTION.value]"}
-               }
-            },
-            "dependsOn": [
-                "deskStorageTemplate"
-            ]
-         },
-        {
-            "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2018-05-01",
-            "name": "deskStorageTemplate",
-            "properties": {
-              "mode": "Incremental",
-              "templateLink": {
-                 "uri":"[variables('deskStorageARMTemplateURI')]",
-                 "contentVersion":"1.0.0.0"
-              },
-              "parameters": {
-                "websiteName":{"value": "[parameters('websiteName')]"}
-              }
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('basicInfraARMURI')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "uniqueWebsiteName": {
+                        "value": "[parameters('websiteName')]"
+                    }
+                }
             }
-         }
+        }
     ]
 }

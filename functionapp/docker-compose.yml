@@ -1,0 +1,12 @@
+version: '3.4'
+
+services:
+  app:
+    build:
+          context: .
+          target: functionapp-development
+    image: functionapp-development
+    volumes:
+    - ./:/azfunc
+    ports: 
+      - "7071:7071" 
