@@ -14,15 +14,15 @@
         "videoIndexerRegion": {
             "type": "string"
         },
-        "arm-template-folder-url": {
+        "resources-folder-url": {
             "type": "string",
-            "defaultValue": "https://raw.githubusercontent.com/l8518/azure-video-indexer-desk/master"
+            "defaultValue": "https://github.com/l8518/azure-video-indexer-desk/releases/download/v20190815.12"
         }
     },
     "variables": {
-        "postConfigARMURI": "[concat(parameters('arm-template-folder-url'), '/azuredeploy-post-config.json' )]",
-        "configKeysARMURI": "[concat(parameters('arm-template-folder-url'), '/azuredeploy-config-keys.json' )]",
-        "basicInfraARMURI": "[concat(parameters('arm-template-folder-url'), '/azuredeploy-basic-infrastructure.json' )]"
+        "postConfigARMURI": "[concat(parameters('resources-folder-url'), '/azuredeploy-post-config.json' )]",
+        "configKeysARMURI": "[concat(parameters('resources-folder-url'), '/azuredeploy-config-keys.json' )]",
+        "basicInfraARMURI": "[concat(parameters('resources-folder-url'), '/azuredeploy-basic-infrastructure.json' )]"
     },
     "resources": [{
             "type": "Microsoft.Resources/deployments",
@@ -84,6 +84,9 @@
                 "parameters": {
                     "uniqueWebsiteName": {
                         "value": "[parameters('websiteName')]"
+                    },
+                    "resources-folder-url": {
+                        "value": "[parameters('resources-folder-url')]"
                     }
                 }
             }

@@ -4,6 +4,9 @@
     "parameters": {
         "uniqueWebsiteName": {
             "type": "string"
+        },
+        "resources-folder-url": {
+            "type": "string"
         }
     },
     "variables": {
@@ -12,8 +15,8 @@
         "webappStorageName": "[concat('webstore' , uniquestring(resourceGroup().id))]",
         "cosmosAccName": "[concat('cdb-' , uniquestring(resourceGroup().id))]",
         "webappASPName": "[concat('webasp-', uniquestring(resourceGroup().id) )]",
-        "webAppPackageURL": "https://github.com/l8518/azure-video-indexer-desk/releases/latest/download/frontend.zip",
-        "videoFunctionAppPackageURL": "https://github.com/l8518/azure-video-indexer-desk/releases/latest/download/functionapp.zip"
+        "webAppPackageURL": "[concat(parameters('resources-folder-url'), '/frontend.zip')]",
+        "videoFunctionAppPackageURL": "[concat(parameters('resources-folder-url'), '/functionapp.zip')]"
     },
     "resources": [{
             "type": "Microsoft.Storage/storageAccounts",
