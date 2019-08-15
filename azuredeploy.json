@@ -16,7 +16,7 @@
         },
         "resources-folder-url": {
             "type": "string",
-            "defaultValue": "https://github.com/l8518/azure-video-indexer-desk/releases/download/v20190815.12"
+            "defaultValue": "https://github.com/l8518/azure-video-indexer-desk/releases/latest/download"
         }
     },
     "variables": {
