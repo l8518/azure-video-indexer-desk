@@ -25,7 +25,7 @@
     },
     "resources": [{
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2017-05-10",
+            "apiVersion": "2016-09-01",
             "name": "postConfiguration",
             "properties": {
                 "mode": "Incremental",
@@ -44,7 +44,7 @@
                         "value": "[parameters('videoIndexerRegion')]"
                     },
                     "COSMOS_CONNECTION": {
-                        "value": "[reference('basicInfrastructure').outputs.COSMOSDB_CONNECTION.value]"
+                        "value": "[reference('basicInfrastructure').outputs.COSMOS_CONNECTION.value]"
                     },
                     "FUNCTION_ENDPOINT": {
                         "value": "[reference('basicInfrastructure').outputs.FUNCTION_ENDPOINT.value]"
@@ -57,7 +57,7 @@
         },
         {
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2017-05-10",
+            "apiVersion": "2016-09-01",
             "name": "basicInfrastructure",
             "properties": {
                 "mode": "Incremental",
