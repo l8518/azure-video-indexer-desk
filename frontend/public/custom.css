@@ -54,6 +54,8 @@
     position: absolute;
     margin-left: 545px;
     margin-top: 170px;
+    overflow-y: scroll;
+    overflow-x: hidden;
 }
 
 #emailfrom {

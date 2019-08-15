@@ -31,17 +31,104 @@
     Hi,
 
     a new video with the filename {{selected_video.fileName }} was uploaded and successfully indexed.
-    <br />
-    <br />
+
     {{#if selected_video.insights.labels }}
+      <br />
+      <br />
       <b>Labels:</b> {{#each selected_video.insights.labels }} {{this.name}} {{#unless @last}},{{/unless}} {{/each}}
     {{/if}}
 
-    <br />
-    <br />
+    
     {{#if selected_video.insights.topics }}
+      <br />
+      <br />
       <b>Themen:</b> {{#each selected_video.insights.topics }} {{this.name}} {{#unless @last}},{{/unless}} {{/each}}
     {{/if}}
+
+
+    {{#if selected_video.insights.topics }}
+      <br />
+      <br />
+      <b>Identifizierte Personen:</b> {{#each selected_video.insights.namedPeople }} {{this.name}} {{#unless @last}},{{/unless}} {{/each}}
+    {{/if}}
+
+    
+    {{#if selected_video.insights.faces }}
+      <br />
+      <br />
+      <b>Personengesichter:</b> 
+      <div class="container-fluid">
+        <div class="row">
+          {{#each selected_video.insights.faces }}
+            <div class="col-4 p-2">
+              <img width="40" height="40" src="{{this.uri}}">
+              {{this.name}}
+            </div>
+          {{/each}}
+        </div>
+      </div>
+    {{/if}}
+
+    
+    {{#if selected_video.insights.transcript }}
+      <br />
+      <br />
+      <b>Transkript:</b>
+      <div class="container-fluid">
+        <div class="row">
+            <div class="col-6 pb-2">
+              Text
+            </div>
+            <div class="col-3 pb-2">
+              von
+            </div>
+            <div class="col-3 pb-2">
+              bis
+            </div>
+        </div>
+        <hr />
+        <div class="row">
+          {{#each selected_video.insights.transcript }}
+            <div class="col-6 pb-2">
+              {{this.text}}
+            </div>
+            <div class="col-3 pb-2">
+              {{this.instances.0.start}}
+            </div>
+            <div class="col-3 pb-2">
+              {{this.instances.0.end}}
+            </div>
+          {{/each}}
+        </div>
+      </div>
+    {{/if}}
+
+    {{#if selected_video.insights.ocr }}
+      <br />
+      <br />
+      <b>OCR Erkennung:</b>
+      <div class="container-fluid">
+        <div class="row">
+            <div class="col-8 pb-2">
+              Text
+            </div>
+            <div class="col-4 pb-2">
+              Sicherheit
+            </div>
+        </div>
+        <div class="row">
+          {{#each selected_video.insights.ocr }}
+            <div class="col-8 pb-2">
+              {{this.text}}
+            </div>
+            <div class="col-4 pb-2">
+              {{this.confidence}}
+            </div>
+          {{/each}}
+        </div>
+      </div>
+    {{/if}}
+
 
   </div>
     <div id="emailfrom" class="text-truncate">

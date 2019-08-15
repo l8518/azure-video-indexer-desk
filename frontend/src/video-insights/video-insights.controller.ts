@@ -9,13 +9,12 @@ export class VideoInsightsController {
     @Render('video-insights/index')
     async root(@Param() params) {
 
-        let resp = (await this.videoInsightsService.findOne(params.id));
-        
-        let faces = this.videoInsightsService.prepareFaces(params.id, resp.resources[0].insights.faces, false);
+        let videoId = params.id
+        let selected_video = (await this.videoInsightsService.findOne(videoId)).resources[0];
+        selected_video.insights.faces = this.videoInsightsService.prepareFaces(videoId, selected_video.insights.faces, false);
 
         return {
-            stringified: JSON.stringify(resp),
-            faces: faces
+            selected_video: selected_video
         };
     }
 }
