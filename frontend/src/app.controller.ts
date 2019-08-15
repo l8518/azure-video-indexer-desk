@@ -5,7 +5,10 @@ import { isNullOrUndefined } from 'util';
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService, private readonly videoInsightsService: VideoInsightsService) { }
+  constructor(private readonly appService: AppService, private readonly videoInsightsService: VideoInsightsService) {
+
+    this.appService.bootstrap_check()
+   }
 
   @Get()
   @Render('index')
