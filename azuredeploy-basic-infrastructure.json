@@ -219,15 +219,5 @@
                 "Request_Source": "rest"
             }
         }
-    ],
-    "outputs": {
-        "COSMOS_CONNECTION": {
-            "type": "string",
-            "value": "[concat('AccountEndpoint=', reference(resourceId('Microsoft.DocumentDb/databaseAccounts/', variables('cosmosAccName'))).documentEndpoint, ';AccountKey=', listKeys(resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosAccName')), providers('Microsoft.DocumentDB', 'databaseAccounts').apiVersions[0]).primaryMasterKey, ';')]"
-        },
-        "FUNCTION_ENDPOINT": {
-            "type": "string",
-            "value": "[concat('https://', variables('functionAppName'),'.azurewebsites.net/api/OnIndexingFinished','?code=', listKeys(resourceId('Microsoft.Web/sites/functions', variables('functionAppName') , 'OnIndexingFinished' ) ,'2016-08-01').default)]"
-        }
-    }
+    ]
 }

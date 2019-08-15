@@ -21,6 +21,7 @@
     },
     "variables": {
         "postConfigARMURI": "[concat(parameters('arm-template-folder-url'), '/azuredeploy-post-config.json' )]",
+        "configKeysARMURI": "[concat(parameters('arm-template-folder-url'), '/azuredeploy-config-keys.json' )]",
         "basicInfraARMURI": "[concat(parameters('arm-template-folder-url'), '/azuredeploy-basic-infrastructure.json' )]"
     },
     "resources": [{
@@ -44,11 +45,26 @@
                         "value": "[parameters('videoIndexerRegion')]"
                     },
                     "COSMOS_CONNECTION": {
-                        "value": "[reference('basicInfrastructure').outputs.COSMOS_CONNECTION.value]"
+                        "value": "[reference('configKeys').outputs.COSMOS_CONNECTION.value]"
                     },
                     "FUNCTION_ENDPOINT": {
-                        "value": "[reference('basicInfrastructure').outputs.FUNCTION_ENDPOINT.value]"
+                        "value": "[reference('configKeys').outputs.FUNCTION_ENDPOINT.value]"
                     }
+                }
+            },
+            "dependsOn": [
+                "configKeys"
+            ]
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2016-09-01",
+            "name": "configKeys",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('configKeysARMURI')]",
+                    "contentVersion": "1.0.0.0"
                 }
             },
             "dependsOn": [

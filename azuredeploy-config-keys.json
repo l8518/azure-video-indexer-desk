@@ -1,0 +1,20 @@
+{
+    "contentVersion": "1.0.0.0",
+    "$schema": "http://schema.management.azure.com/schemas/2018-05-01/deploymentTemplate.json#",
+    "parameters": {},
+    "variables": {
+        "functionAppName": "[concat( 'fapp', uniquestring(resourceGroup().id))]",
+        "cosmosAccName": "[concat('cdb-' , uniquestring(resourceGroup().id))]"
+    },
+    "resources": [],
+    "outputs": {
+        "COSMOS_CONNECTION": {
+            "type": "string",
+            "value": "[concat('AccountEndpoint=', reference(resourceId('Microsoft.DocumentDb/databaseAccounts/', variables('cosmosAccName')), '2015-04-08').documentEndpoint, ';AccountKey=', listKeys(resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosAccName')), providers('Microsoft.DocumentDB', 'databaseAccounts').apiVersions[0]).primaryMasterKey, ';')]"
+        },
+        "FUNCTION_ENDPOINT": {
+            "type": "string",
+            "value": "[concat('https://', variables('functionAppName'),'.azurewebsites.net/api/OnIndexingFinished','?code=', listKeys(resourceId('Microsoft.Web/sites/functions', variables('functionAppName') , 'OnIndexingFinished' ) ,'2016-08-01').default)]"
+        }
+    }
+}
