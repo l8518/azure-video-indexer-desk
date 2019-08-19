@@ -5,6 +5,12 @@
 
 ## Development
 
+### Using Docker Environment
+
+You can use Docker and a Compose file to develop on your local machine.
+
+
+
 ### Azure Function App
 
 ```

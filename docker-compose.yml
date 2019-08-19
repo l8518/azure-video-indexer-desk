@@ -1,0 +1,22 @@
+version: '3.4'
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+    volumes:
+      - ./frontend:/app
+    image: frontend-development
+    ports: 
+      - "3000:3000"
+    environment: 
+      - HOST=0.0.0.0
+  functionapp:
+    build:
+      context: ./functionapp
+      target: functionapp-development
+    image: functionapp-development
+    volumes:
+      - ./functionapp:/azfunc
+    ports: 
+      - "7071:7071" 

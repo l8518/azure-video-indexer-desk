@@ -4,6 +4,7 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
 import { AppModule } from './app.module';
 import * as hbs from 'hbs';
+import { isNullOrUndefined } from 'util';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(
@@ -16,6 +17,8 @@ async function bootstrap() {
   app.setViewEngine('hbs');
   app.set('view options', { layout: 'default' });
 
-  await app.listen(process.env.PORT || 3000);
+  let hostname : string = (!isNullOrUndefined(process.env.HOST) ? process.env.HOST : undefined)
+  console.log(hostname)
+  await app.listen(process.env.PORT || 3000, hostname);
 }
 bootstrap();
