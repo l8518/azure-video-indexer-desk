@@ -62,17 +62,12 @@ stages:
   jobs:
   - job: Deploy
     steps:
+
     - task: DownloadBuildArtifacts@0
       inputs:
         buildType: 'current'
         downloadType: 'specific'
         downloadPath: '$(System.ArtifactsDirectory)'
-    - task: Bash@3
-      inputs:
-        targetType: 'inline'
-        script: |
-          # Write your commands here
-          ls -a
     - task: GitHubRelease@0
       displayName: 'GitHub release (create)'
       inputs:
