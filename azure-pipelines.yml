@@ -59,6 +59,7 @@ stages:
         publishLocation: 'Container'
 
 - stage: Deploy
+  condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
   jobs:
   - job: Deploy
     steps:
@@ -77,6 +78,6 @@ stages:
         title: 'v$(Build.BuildNumber)'
         assets: |
           $(Build.ArtifactStagingDirectory)/*
-          drop/functionapp/functionapp.zip
-          drop/webapp/frontend.zip
-          drop/deployments/*
+          functionapp/functionapp.zip
+          webapp/frontend.zip
+          deployments/*
