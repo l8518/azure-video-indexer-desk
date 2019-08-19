@@ -72,7 +72,7 @@ stages:
     - task: GitHubRelease@0
       displayName: 'GitHub release (create)'
       inputs:
-        gitHubConnection: $(Build.Repository.Name)
+        gitHubConnection: 'DevOps GitHub Release SC'
         tagSource: manual
         tag: 'v$(Build.BuildNumber)'
         title: 'v$(Build.BuildNumber)'

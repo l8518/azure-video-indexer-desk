@@ -3,13 +3,27 @@
 ## Deploy the solution
 [![Deploy to Azure](https://azuredeploy.net/deploybutton.png)](https://azuredeploy.net/)
 
+# Setup Fork / Own CI/CD
+
+1. Fork Github Repository 
+2. Setup Azure Devops Pipeline
+   1. Install Azure Piplelines via GitHub Marketplace
+   2. Create new DevOps Project
+   3. Add Service Connection with name `DevOps GitHub Release SC`  
+   Go: → Project Settings → Service Connections → New service connection → Select GitHub → Select `Grant authorization` → Put in `DevOps GitHub Release SC` into Connection Name
+
 ## Development
 
 ### Using Docker Environment
 
 You can use Docker and a Compose file to develop on your local machine.  
-Just use `docker-compose up` to build and start the containers.
-After building you can use `docker-compose start` or `docker-compose stop` to start or stop containers.
+
+You need to install the required npm packages first, thus:
+- Install frontend packages `docker-compose run frontend npm install`
+- Install function packages `docker-compose run functionapp npm install`
+
+Then, just use `docker-compose up` to start the containers.
+You can use `docker-compose start` or `docker-compose stop` to start or stop your current containers.
 
 To delete your environment use `docker-compose down`
 ### Azure Function App
