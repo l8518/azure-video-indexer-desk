@@ -1,9 +1,27 @@
-# Azure Video Indexer Desk
+# 1. Azure Video Indexer Desk
 
-## Deploy the solution
+## 1.1 Deploy the solution
+During deployment you will be asked to provide the following values:
+- Website Name → Use your globally unique name like the name of the resource group
+- Video Indexer Account Id → Check instructions in 1.2
+- Video Indexer Subscription Key → Check instructions in 1.2
+- Video Indexer Region → Use your region of the Video Indexer, usually `trial`
+
+[*Check example screen*](./docs/deployment_button.png)
+
 [![Deploy to Azure](https://azuredeploy.net/deploybutton.png)](https://azuredeploy.net/)
 
-# Setup Fork / Own CI/CD
+## 1.2 Retrieve Video Indexer Access Credentials
+
+1. Go to [www.videoindexer.ai](https://www.videoindexer.ai/account/login) or check [vi.microsoft.com](http://vi.microsoft.com/) for more information 
+2. Follow the setup steps if you login for the first time.
+3. **Retrieve your Account ID:** Click on your profile picture and select *Settings* → Navigate to tab *Account* and copy your Account ID 
+4. **Retrieve your Subscription Key:** Go to [api-portal.videoindexer.ai/developer](https://api-portal.videoindexer.ai/developer) and obtain your Primary Key  
+   Your key looks something like this: `3907a0ff602142e79f0c67f9248698b4`
+
+# 2. Development 
+
+## 2.1. Setup Fork / Own CI/CD
 
 1. Fork Github Repository 
 2. Setup Azure Devops Pipeline
@@ -12,7 +30,7 @@
    3. Add Service Connection with name `DevOps GitHub Release SC`  
    Go: → Project Settings → Service Connections → New service connection → Select GitHub → Select `Grant authorization` → Put in `DevOps GitHub Release SC` into Connection Name
 
-## Development
+## 2.2 Development
 
 ### Using Docker Environment
 
