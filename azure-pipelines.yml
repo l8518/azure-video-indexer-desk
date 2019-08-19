@@ -77,7 +77,6 @@ stages:
         tag: 'v$(Build.BuildNumber)'
         title: 'v$(Build.BuildNumber)'
         assets: |
-          $(Build.ArtifactStagingDirectory)/*
-          functionapp/functionapp.zip
-          webapp/frontend.zip
-          deployments/*
+          $(Build.ArtifactStagingDirectory)/functionapp/functionapp.zip
+          $(Build.ArtifactStagingDirectory)/webapp/frontend.zip
+          $(Build.ArtifactStagingDirectory)/deployments/*
