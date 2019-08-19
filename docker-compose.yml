@@ -5,7 +5,7 @@ services:
     build:
       context: ./frontend
     volumes:
-      - ./frontend:/app
+      - ./frontend/.:/app
     image: frontend-development
     ports: 
       - "3000:3000"
@@ -17,6 +17,6 @@ services:
       target: functionapp-development
     image: functionapp-development
     volumes:
-      - ./functionapp:/azfunc
+      - ./functionapp/:/azfunc
     ports: 
       - "7071:7071" 
