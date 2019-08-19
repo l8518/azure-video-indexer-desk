@@ -6,52 +6,82 @@
 trigger:
 - master
 
-jobs:
-- job: Build_FunctionApp
-  pool:
-    vmImage: 'ubuntu-latest'
-  steps:
-    - template: azure-pipelines-function-build.yml
-      parameters:
-        functionName: functionapp
+stages:
+- stage: Build
+  jobs:
+  - job: Build_FunctionApp
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+      - template: azure-pipelines-function-build.yml
+        parameters:
+          functionName: functionapp
 
-- job: Build_FrontendApp
-  pool:
-    vmImage: 'ubuntu-latest'
-  steps:
-  - task: Npm@1
-    inputs:
-      command: 'install'
-      workingDir: 'frontend'
-  - task: Npm@1
-    inputs:
-      command: 'custom'
-      workingDir: 'frontend'
-      customCommand: 'run build'
-  - task: ArchiveFiles@2
-    inputs:
-      rootFolderOrFile: 'frontend'
-      includeRootFolder: false
-      archiveType: 'zip'
-      archiveFile: '$(Build.ArtifactStagingDirectory)/frontend.zip'
-      replaceExistingArchive: true
-  
-  - task: PublishBuildArtifacts@1
-    inputs:
-      PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-      ArtifactName: 'webapp'
-      publishLocation: 'Container'
+  - job: Build_FrontendApp
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - task: Npm@1
+      inputs:
+        command: 'install'
+        workingDir: 'frontend'
+    - task: Npm@1
+      inputs:
+        command: 'custom'
+        workingDir: 'frontend'
+        customCommand: 'run build'
+    - task: ArchiveFiles@2
+      inputs:
+        rootFolderOrFile: 'frontend'
+        includeRootFolder: false
+        archiveType: 'zip'
+        archiveFile: '$(Build.ArtifactStagingDirectory)/frontend.zip'
+        replaceExistingArchive: true
+    
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        ArtifactName: 'webapp'
+        publishLocation: 'Container'
 
-- job: Collect_DeployScripts
-  pool:
-    vmImage: 'ubuntu-latest'
-  steps:
-  - task: CopyFiles@2
-    inputs:
-      Contents: 'azuredeploy**.json'
-      TargetFolder: '$(Build.ArtifactStagingDirectory)'
-  - task: PublishBuildArtifacts@1
-    inputs:
-      PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-      ArtifactName: 'deployments'
-      publishLocation: 'Container'
+  - job: Collect_DeployScripts
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - task: CopyFiles@2
+      inputs:
+        Contents: 'azuredeploy**.json'
+        TargetFolder: '$(Build.ArtifactStagingDirectory)'
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        ArtifactName: 'deployments'
+        publishLocation: 'Container'
+
+- stage: Deploy
+  jobs:
+  - job: Deploy
+    steps:
+    - task: DownloadBuildArtifacts@0
+      inputs:
+        buildType: 'current'
+        downloadType: 'specific'
+        downloadPath: '$(System.ArtifactsDirectory)'
+    - task: Bash@3
+      inputs:
+        targetType: 'inline'
+        script: |
+          # Write your commands here
+          ls -a
+    - task: GitHubRelease@0
+      displayName: 'GitHub release (create)'
+      inputs:
+        gitHubConnection: 'GitHub Azure Vide Indexer Desk Auth'
+        tagSource: manual
+        tag: 'v$(Build.BuildNumber)'
+        title: 'v$(Build.BuildNumber)'
+        assets: |
+          $(Build.ArtifactStagingDirectory)/*
+          drop/functionapp/functionapp.zip
+          drop/webapp/frontend.zip
+          drop/deployments/*
