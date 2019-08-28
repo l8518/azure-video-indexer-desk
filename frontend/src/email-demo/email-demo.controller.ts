@@ -4,6 +4,7 @@ import { AppModule } from '../app.module';
 import { Response } from 'express';
 import { VideoInsightsService } from '../video-insights/video-insights.service';
 import { ResponseError } from 'superagent';
+import { isNullOrUndefined } from 'util';
 
 @Controller('email-demo')
 export class EmailDemoController {
@@ -21,7 +22,8 @@ export class EmailDemoController {
     @Get('/')
     async root(@Res() res: Response) {
 
-        let lastId = (await this.videoInsightsService.lastId()).resources[0].id;
+        let lastVideoQry = (await this.videoInsightsService.lastId()).resources;
+        let lastId = (!isNullOrUndefined(lastVideoQry) ? lastVideoQry[0].id : undefined);
         return this.renderVideo(res, lastId);
     }
 
@@ -33,7 +35,9 @@ export class EmailDemoController {
         });
 
         let selected_video = (await this.videoInsightsService.findOne(videoId)).resources[0];
-        selected_video.insights.faces = this.videoInsightsService.prepareFaces(videoId, selected_video.insights.faces, false);
+        if (!isNullOrUndefined(selected_video)) {
+            selected_video.insights.faces = this.videoInsightsService.prepareFaces(videoId, selected_video.insights.faces, false);
+        }
 
         return res.render(
             'email-demo/index',
