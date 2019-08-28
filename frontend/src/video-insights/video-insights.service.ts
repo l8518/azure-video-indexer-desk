@@ -98,6 +98,9 @@ export class VideoInsightsService {
             })
 
         }
+        if (isNullOrUndefined(faces)) {
+            return [];
+        }
         // Process and return face data
         let preparedFaces = faces.map((value: any, index: number, array: any[]) => {
             // Upload faces async to Blob Storage
