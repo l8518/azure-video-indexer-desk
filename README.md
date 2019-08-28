@@ -82,3 +82,4 @@ COSMOS_CONNECTION=<Connection String of cbd-* CosmosDB>
 
 2. Dockerized Environment
    1. Install node_modules with `docker-compose run frontend npm install`
+   2. Use the Nest CLI via `docker-compose exec frontend nest`
