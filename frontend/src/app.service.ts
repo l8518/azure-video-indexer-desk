@@ -14,7 +14,7 @@ export class AppService {
     const collectionDefinition = { id: "VideoIndexerInsights" };
 
     const { database } = await client.databases.createIfNotExists(databaseDefinition);
-    const { container } = await database.containers.createIfNotExists(collectionDefinition);
+    await database.containers.createIfNotExists(collectionDefinition);
 
   }
 }
