@@ -18,7 +18,6 @@ async function bootstrap() {
   app.set('view options', { layout: 'default' });
 
   let hostname : string = (!isNullOrUndefined(process.env.HOST) ? process.env.HOST : undefined)
-  console.log(hostname)
   await app.listen(process.env.PORT || 3000, hostname);
 }
 bootstrap();
