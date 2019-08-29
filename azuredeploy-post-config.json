@@ -16,6 +16,9 @@
         },
         "FUNCTION_ENDPOINT": {
             "type": "string"
+        },
+        "FUNCTION_GETPLAYER_ENDPOINT": {
+            "type": "string"
         }
     },
     "variables": {
@@ -50,6 +53,38 @@
                     }]
                 },
                 "eventDeliverySchema": "EventGridSchema"
+            }
+        },
+        {
+            "apiVersion": "2018-02-01",
+            "name": "[variables('websiteName')]",
+            "type": "Microsoft.Web/sites",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "name": "[variables('websiteName')]",
+                "siteConfig": {
+                    "appSettings": [{
+                            "name": "WEBSITE_NODE_DEFAULT_VERSION",
+                            "value": "8.9.4"
+                        },
+                        {
+                            "name": "COSMOS_CONNECTION",
+                            "value": "[parameters('COSMOS_CONNECTION')]"
+                        },
+                        {
+                            "name": "BLOB_STORAGE_NAME",
+                            "value": "[variables('webappStorageName')]"
+                        },
+                        {
+                            "name": "BLOB_STORAGE_KEY",
+                            "value": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('webappStorageName')), '2015-05-01-preview').key1]"
+                        },
+                        {
+                            "name": "FUNCTION_GETPLAYER_ENDPOINT",
+                            "value": "[parameters('FUNCTION_GETPLAYER_ENDPOINT')]"
+                        }
+                    ]
+                }
             }
         },
         {

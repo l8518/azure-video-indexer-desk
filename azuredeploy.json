@@ -49,6 +49,9 @@
                     },
                     "FUNCTION_ENDPOINT": {
                         "value": "[reference('configKeys').outputs.FUNCTION_ENDPOINT.value]"
+                    },
+                    "FUNCTION_GETPLAYER_ENDPOINT": {
+                        "value": "[reference('configKeys').outputs.FUNCTION_GETPLAYER_ENDPOINT.value]"
                     }
                 }
             },

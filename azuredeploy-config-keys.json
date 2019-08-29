@@ -15,6 +15,10 @@
         "FUNCTION_ENDPOINT": {
             "type": "string",
             "value": "[concat('https://', variables('functionAppName'),'.azurewebsites.net/api/OnIndexingFinished','?code=', listKeys(resourceId('Microsoft.Web/sites/functions', variables('functionAppName') , 'OnIndexingFinished' ) ,'2016-08-01').default)]"
+        },
+        "FUNCTION_GETPLAYER_ENDPOINT": {
+            "type": "string",
+            "value": "[concat('https://', variables('functionAppName'),'.azurewebsites.net/api/GetVideoPlayer','?code=', listKeys(resourceId('Microsoft.Web/sites/functions', variables('functionAppName') , 'GetVideoPlayer' ) ,'2016-08-01').default)]"
         }
     }
 }

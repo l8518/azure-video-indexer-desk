@@ -11,6 +11,13 @@ export class EmailDemoController {
 
     constructor(private readonly videoInsightsService: VideoInsightsService) { }
 
+    @Get('/player/:id')
+    async player(@Param() params, @Res() res) {
+        let videoId = params.id;
+        let resp = (await this.videoInsightsService.getEmbeddedVideoPlayer(videoId))
+        return res.redirect(resp.data);
+    }
+
     @Get('/:id')
     show(@Param() params, @Res() res: Response) {
 
@@ -27,7 +34,7 @@ export class EmailDemoController {
         return this.renderVideo(res, lastId);
     }
 
-    private async renderVideo(res: Response, videoId : string) {
+    private async renderVideo(res: Response, videoId: string) {
         let indexed_videos = (await this.videoInsightsService.findAll()).resources
         let transformedVideos = indexed_videos.map((value: any) => {
             value.labels = this.videoInsightsService.filterAndTransformForTopNSignificantInstances(value.labels)

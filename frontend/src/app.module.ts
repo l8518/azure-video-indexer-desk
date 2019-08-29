@@ -12,6 +12,6 @@ import { AboutController } from './about/about.controller';
 @Module({
   imports: [VideoInsightsModule],
   controllers: [AppController, FileUploadController, VideoInsightsController, EmailDemoController, AboutController],
-  providers: [AppService, FileUploadService, VideoInsightsService],
+  providers: [AppService, FileUploadService],
 })
 export class AppModule {}

@@ -1,19 +1,22 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, HttpService } from '@nestjs/common';
 import { CosmosClient, SqlQuerySpec } from '@azure/cosmos';
 import { SharedKeyCredential, generateAccountSASQueryParameters, SASQueryParameters, AccountSASPermissions, AccountSASResourceTypes, AccountSASServices, StorageURL, BlobURL, Aborter } from "@azure/storage-blob";
 import { isNullOrUndefined } from 'util';
+import { Observable } from 'rxjs';
+import { AxiosResponse } from 'axios';
 
 const COSMOS_CONNECTION = process.env["COSMOS_CONNECTION"];
 
 const BLOB_STORAGE_NAME = process.env["BLOB_STORAGE_NAME"];
 const BLOB_STORAGE_KEY = process.env["BLOB_STORAGE_KEY"];
+const FUNCTION_GETPLAYER_ENDPOINT = process.env["FUNCTION_GETPLAYER_ENDPOINT"];
 const storageSharedKeyCredential = new SharedKeyCredential(BLOB_STORAGE_NAME, BLOB_STORAGE_KEY);
 
 @Injectable()
 export class VideoInsightsService {
     private cosmosClient: CosmosClient;
 
-    constructor() {
+    constructor(private readonly httpService: HttpService) {
 
         this.cosmosClient = new CosmosClient(COSMOS_CONNECTION);
     }
@@ -110,6 +113,14 @@ export class VideoInsightsService {
         });
         return preparedFaces;
     }
+
+    async getEmbeddedVideoPlayer(videoId): Promise<AxiosResponse<any>> {
+
+        const endpoint = `${FUNCTION_GETPLAYER_ENDPOINT}`
+                         + `&videoid=${videoId}`
+
+        return this.httpService.get(endpoint).toPromise();
+      }
 
     /**
  * Generates the SAS Query Parameters for a specific time and permissions set.
