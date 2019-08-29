@@ -52,6 +52,9 @@
                     },
                     "FUNCTION_GETPLAYER_ENDPOINT": {
                         "value": "[reference('configKeys').outputs.FUNCTION_GETPLAYER_ENDPOINT.value]"
+                    },
+                    "uniqueWebsiteName": {
+                        "value": "[parameters('websiteName')]"
                     }
                 }
             },

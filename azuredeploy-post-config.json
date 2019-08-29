@@ -19,9 +19,13 @@
         },
         "FUNCTION_GETPLAYER_ENDPOINT": {
             "type": "string"
+        },
+        "uniqueWebsiteName": {
+            "type": "string"
         }
     },
     "variables": {
+        "websiteName": "[parameters('uniqueWebsiteName')]",
         "functionAppName": "[concat( 'fapp', uniquestring(resourceGroup().id))]",
         "webappStorageName": "[concat('webstore' , uniquestring(resourceGroup().id))]",
         "functionName": "IndexNewUploadedFile",
