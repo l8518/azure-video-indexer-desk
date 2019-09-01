@@ -66,6 +66,12 @@
             <div class="col-4 p-2">
               <img width="40" height="40" src="{{this.uri}}">
               {{this.name}}
+              <ul>
+                {{#each this.instances }} 
+                  <li style="list-style: none;"><small>{{this.adjustedStart}} &rArr; {{this.adjustedEnd}}</small></li>
+                {{/each}}
+              </ul>
+
             </div>
           {{/each}}
         </div>
