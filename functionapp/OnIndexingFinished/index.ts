@@ -77,15 +77,20 @@ function processFaces(faces: Array<any>, videoId, accessToken) {
     return [];
   }
 
-  let targetBlobContainer = connectToBlobContainer();
+  let blobContainer = connectToBlobContainer();
   // Process and return face data
   faces.forEach(async (value: any, index: number, array: any[]) => {
     // Upload faces async to Blob Storage
     let fName = videoId + "/" + `FaceThumbnail_${value.thumbnailId}.jpg`;
-    let thumbnailBuffer = await getThumbnailAsBuffer(videoId, value.thumbnailId, accessToken);
-    let streamedBuffer = getStreamFromBuffer(thumbnailBuffer);
-    uploadStream(targetBlobContainer, fName, streamedBuffer);
+    let thumbnailId = value.thumbnailId;
+    copyThumbnailToBlobStorage(videoId, thumbnailId, accessToken, blobContainer, fName);
   });
+}
+
+async function copyThumbnailToBlobStorage(videoId: string, thumbnailId: string, accessToken: string, targetBlobContainer: ContainerURL, fName: string) {
+  let thumbnailBuffer = await getThumbnailAsBuffer(videoId, thumbnailId, accessToken);
+  let streamedBuffer = getStreamFromBuffer(thumbnailBuffer);
+  uploadStream(targetBlobContainer, fName, streamedBuffer);
 }
 
 function connectToBlobContainer() : ContainerURL {
