@@ -35,6 +35,17 @@
     <br />
     <a href="player/{{selected_video.id}}">Hier</a> im Miniplayer ansehen
 
+    {{#if selected_video.insights.shots }}
+      <br />
+      <br />
+      <b>Key Frames:</b> <br/>
+        {{#each selected_video.insights.shots }}
+          {{#each this.keyFrames }}
+            <a href="{{this.uri}}" target="_blank"><img width="80" height="80" src="{{this.uri}}"></a>
+          {{/each}}
+        {{/each}}
+    {{/if}}
+
     {{#if selected_video.insights.labels }}
       <br />
       <br />

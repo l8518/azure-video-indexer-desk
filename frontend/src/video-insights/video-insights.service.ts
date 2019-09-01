@@ -1,7 +1,7 @@
 import { Injectable, HttpService } from '@nestjs/common';
 import { CosmosClient, SqlQuerySpec } from '@azure/cosmos';
 import { SharedKeyCredential, generateAccountSASQueryParameters, SASQueryParameters, AccountSASPermissions, AccountSASResourceTypes, AccountSASServices, StorageURL, BlobURL, Aborter } from "@azure/storage-blob";
-import { isNullOrUndefined } from 'util';
+import { isNullOrUndefined, isArray } from 'util';
 import { Observable } from 'rxjs';
 import { AxiosResponse } from 'axios';
 
@@ -109,6 +109,29 @@ export class VideoInsightsService {
             // Upload faces async to Blob Storage
             let fName = videoId + "/" + `FaceThumbnail_${value.thumbnailId}.jpg`;
             value.uri =  `${containerURL}/${fName}?${storageSASParams}`;
+            return value;
+        });
+        return preparedFaces;
+    }
+
+    prepareShots(videoId, shots: Array<any>) {
+
+        let storageSASParams = this.getSASString(storageSharedKeyCredential);
+        const containerURL = `https://${BLOB_STORAGE_NAME}.blob.core.windows.net/imgs`;
+
+        if (isNullOrUndefined(shots)) {
+            return [];
+        }
+        // Process and return face data
+        let preparedFaces = shots.map((value: any, index: number, array: any[]) => {
+            // Upload faces async to Blob Storage
+            if (isArray(value.keyFrames)) {
+                value.keyFrames = value.keyFrames.map((keyFrame: any) => {
+                    let fName = videoId + "/" + `KeyFrame_${keyFrame.instances[0].thumbnailId}.jpg`;
+                    keyFrame.uri =  `${containerURL}/${fName}?${storageSASParams}`;
+                    return keyFrame;
+                })   
+            }
             return value;
         });
         return preparedFaces;

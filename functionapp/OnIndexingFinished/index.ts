@@ -28,6 +28,7 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
   // Preprocess Video Insights
   let videoInsights = await getVideoInsights(videoId, videoIndexerAccessToken);
   let faces = await processFaces(videoInsights.insights.faces, videoId, videoIndexerAccessToken);
+  await processShots(videoInsights.insights.shots, videoId, videoIndexerAccessToken);
 
   // Set HTTP Output
   context.res = {};
@@ -84,6 +85,24 @@ function processFaces(faces: Array<any>, videoId, accessToken) {
     let fName = videoId + "/" + `FaceThumbnail_${value.thumbnailId}.jpg`;
     let thumbnailId = value.thumbnailId;
     copyThumbnailToBlobStorage(videoId, thumbnailId, accessToken, blobContainer, fName);
+  });
+}
+
+function processShots(shots : Array<any>, videoId, accessToken) {
+  if (!isArray(shots)) {
+    return [];
+  }
+
+  let blobContainer = connectToBlobContainer();
+  shots.forEach((shot: any) => {
+    // Upload faces async to Blob Storage
+    if (isArray(shot.keyFrames)) {
+      shot.keyFrames.forEach(async (keyFrame: any) => {
+        let fName = videoId + "/" + `KeyFrame_${keyFrame.instances[0].thumbnailId}.jpg`;
+        let thumbnailId = keyFrame.instances[0].thumbnailId;
+        copyThumbnailToBlobStorage(videoId, thumbnailId, accessToken, blobContainer, fName);
+      } )
+    }
   });
 }
 

@@ -12,6 +12,7 @@ export class VideoInsightsController {
         let videoId = params.id
         let selected_video = (await this.videoInsightsService.findOne(videoId)).resources[0];
         selected_video.insights.faces = this.videoInsightsService.prepareFaces(videoId, selected_video.insights.faces, false);
+        selected_video.insights.shots = this.videoInsightsService.prepareShots(videoId, selected_video.insights.shots);
 
         return {
             selected_video: selected_video

@@ -44,6 +44,7 @@ export class EmailDemoController {
         let selected_video = (await this.videoInsightsService.findOne(videoId)).resources[0];
         if (!isNullOrUndefined(selected_video)) {
             selected_video.insights.faces = this.videoInsightsService.prepareFaces(videoId, selected_video.insights.faces, false);
+            selected_video.insights.shots = this.videoInsightsService.prepareShots(videoId, selected_video.insights.shots);
         }
 
         return res.render(
