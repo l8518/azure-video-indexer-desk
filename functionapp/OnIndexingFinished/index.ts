@@ -76,12 +76,8 @@ function processFaces(faces: Array<any>, videoId, accessToken) {
   if (!isArray(faces)) {
     return [];
   }
-  // Authenticate and connect to Blob Container
-  const storageSharedKeyCredential = new SharedKeyCredential(BLOB_STORAGE_NAME, BLOB_STORAGE_KEY);
-  const storagePipeline = StorageURL.newPipeline(storageSharedKeyCredential);
-  const storageServiceURL = new ServiceURL(`https://${BLOB_STORAGE_NAME}.blob.core.windows.net`, storagePipeline);
-  const targetBlobContainer = ContainerURL.fromServiceURL(storageServiceURL, 'imgs');
 
+  let targetBlobContainer = connectToBlobContainer();
   // Process and return face data
   faces.forEach(async (value: any, index: number, array: any[]) => {
     // Upload faces async to Blob Storage
@@ -90,6 +86,15 @@ function processFaces(faces: Array<any>, videoId, accessToken) {
     let streamedBuffer = getStreamFromBuffer(thumbnailBuffer);
     uploadStream(targetBlobContainer, fName, streamedBuffer);
   });
+}
+
+function connectToBlobContainer() : ContainerURL {
+    // Authenticate and connect to Blob Container
+    const storageSharedKeyCredential = new SharedKeyCredential(BLOB_STORAGE_NAME, BLOB_STORAGE_KEY);
+    const storagePipeline = StorageURL.newPipeline(storageSharedKeyCredential);
+    const storageServiceURL = new ServiceURL(`https://${BLOB_STORAGE_NAME}.blob.core.windows.net`, storagePipeline);
+    const targetBlobContainer = ContainerURL.fromServiceURL(storageServiceURL, 'imgs');
+    return targetBlobContainer;
 }
 
 function getStreamFromBuffer(buffer) {
