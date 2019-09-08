@@ -30,17 +30,25 @@ export class EmailDemoController {
     async root(@Res() res: Response) {
 
         let lastVideoQry = (await this.videoInsightsService.lastId()).resources;
+        // fetch the last id, if available.
         let lastId = (!isNullOrUndefined(lastVideoQry) ? lastVideoQry[0].id : undefined);
         return this.renderVideo(res, lastId);
     }
 
+    /**
+     * Renders the Email-client as the videoId is the selected "email".
+     * @param res 
+     * @param videoId 
+     */
     private async renderVideo(res: Response, videoId: string) {
         let indexed_videos = (await this.videoInsightsService.findAll()).resources
+        // shows only the top significant labels
         let transformedVideos = indexed_videos.map((value: any) => {
             value.labels = this.videoInsightsService.filterAndTransformForTopNSignificantInstances(value.labels)
             return value;
         });
 
+        // prepares the selected video for display (URIs etc.)
         let selected_video = (await this.videoInsightsService.findOne(videoId)).resources[0];
         if (!isNullOrUndefined(selected_video)) {
             selected_video.insights.faces = this.videoInsightsService.prepareFaces(videoId, selected_video.insights.faces, false);
