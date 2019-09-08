@@ -108,7 +108,7 @@ export class VideoInsightsService {
         let preparedFaces = faces.map((value: any, index: number, array: any[]) => {
             // Upload faces async to Blob Storage
             let fName = videoId + "/" + `FaceThumbnail_${value.thumbnailId}.jpg`;
-            value.uri =  `${containerURL}/${fName}?${storageSASParams}`;
+            value.uri = `${containerURL}/${fName}?${storageSASParams}`;
             return value;
         });
         return preparedFaces;
@@ -128,9 +128,9 @@ export class VideoInsightsService {
             if (isArray(value.keyFrames)) {
                 value.keyFrames = value.keyFrames.map((keyFrame: any) => {
                     let fName = videoId + "/" + `KeyFrame_${keyFrame.instances[0].thumbnailId}.jpg`;
-                    keyFrame.uri =  `${containerURL}/${fName}?${storageSASParams}`;
+                    keyFrame.uri = `${containerURL}/${fName}?${storageSASParams}`;
                     return keyFrame;
-                })   
+                })
             }
             return value;
         });
@@ -140,10 +140,10 @@ export class VideoInsightsService {
     async getEmbeddedVideoPlayer(videoId): Promise<AxiosResponse<any>> {
 
         const endpoint = `${FUNCTION_GETPLAYER_ENDPOINT}`
-                         + `&videoid=${videoId}`
+            + `&videoid=${videoId}`
 
         return this.httpService.get(endpoint).toPromise();
-      }
+    }
 
     /**
  * Generates the SAS Query Parameters for a specific time and permissions set.
@@ -188,7 +188,5 @@ export class VideoInsightsService {
         const amsStorageSASParamsString = this.createSASQueryParameters(credentials).toString();
         return amsStorageSASParamsString
     }
-
-
 
 }
