@@ -21,6 +21,10 @@ export class VideoInsightsService {
         this.cosmosClient = new CosmosClient(COSMOS_CONNECTION);
     }
 
+    /**
+     * Returns all video insights with filename, id, labels and named People
+     * (used in the root site)
+     */
     async findAll() {
 
         let sqlQuery: SqlQuerySpec = {
@@ -35,6 +39,12 @@ export class VideoInsightsService {
         return resp;
     }
 
+    /**
+     * Filter to the only the top n significant instances from the labels.
+     * 
+     * @param labels JSON-structure passed from the CosmosDB - reduced to labels with confidence 90% and higher
+     * @param n 
+     */
     filterAndTransformForTopNSignificantInstances(labels: Array<any>, n = 5) {
         if (isNullOrUndefined(labels)) {
             return labels;
@@ -59,6 +69,10 @@ export class VideoInsightsService {
         return labels.slice(0, n);
     }
 
+    /**
+     * Finds a single video by its id. Full insight structure is returned, thus it might vary depending on which video was indexed!
+     * @param id 
+     */
     async findOne(id: string) {
 
         let sqlQuery: SqlQuerySpec = {
@@ -76,6 +90,9 @@ export class VideoInsightsService {
         return resp;
     }
 
+    /**
+     * Return the id of the lastest indexed video.
+     */
     async lastId() {
 
         let sqlQuery: SqlQuerySpec = {
@@ -90,6 +107,14 @@ export class VideoInsightsService {
         return resp;
     }
 
+    /**
+     * Prepares the faces JSON-structure for display.
+     * Adds:
+     * - URL from the blob storage via Valet Principle (Azure Best Practice)
+     * @param videoId 
+     * @param faces 
+     * @param identifiedOnly 
+     */
     prepareFaces(videoId, faces: Array<any>, identifiedOnly = false) {
 
         let storageSASParams = this.getSASString(storageSharedKeyCredential);
@@ -114,6 +139,13 @@ export class VideoInsightsService {
         return preparedFaces;
     }
 
+    /**
+     * Prepares the Shots JSON-strcuture for display.
+     * Adds:
+     * - URL from the blob storage via Valet Principle (Azure Best Practice)
+     * @param videoId 
+     * @param shots 
+     */
     prepareShots(videoId, shots: Array<any>) {
 
         let storageSASParams = this.getSASString(storageSharedKeyCredential);
@@ -137,6 +169,10 @@ export class VideoInsightsService {
         return preparedFaces;
     }
 
+    /**
+     * Fetches an URL to a miniplayer from the Video Indexer.
+     * @param videoId 
+     */
     async getEmbeddedVideoPlayer(videoId): Promise<AxiosResponse<any>> {
 
         const endpoint = `${FUNCTION_GETPLAYER_ENDPOINT}`
@@ -146,9 +182,9 @@ export class VideoInsightsService {
     }
 
     /**
- * Generates the SAS Query Parameters for a specific time and permissions set.
- * @param sharedKeyCredential 
- */
+    * Generates the SAS Query Parameters for a specific time and permissions set.
+    * @param sharedKeyCredential 
+    */
     createSASQueryParameters(sharedKeyCredential): SASQueryParameters {
         var startDate = new Date();
         var expiryDate = new Date(startDate);
