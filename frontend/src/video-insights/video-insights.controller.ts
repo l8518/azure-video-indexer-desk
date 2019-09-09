@@ -1,9 +1,10 @@
 import { Controller, Get, Render, Param } from '@nestjs/common';
 import { VideoInsightsService } from './video-insights.service';
+import { AppService } from '../app.service';
 
 @Controller('video-insights')
 export class VideoInsightsController {
-    constructor(private readonly videoInsightsService: VideoInsightsService) { }
+    constructor(private readonly appService: AppService, private readonly videoInsightsService: VideoInsightsService) { }
 
     @Get(':id')
     @Render('video-insights/index')
@@ -17,7 +18,8 @@ export class VideoInsightsController {
         selected_video.insights.shots = this.videoInsightsService.prepareShots(videoId, selected_video.insights.shots);
 
         return {
-            selected_video: selected_video
+            selected_video: selected_video,
+            uploadURL: this.appService.getUploadURL()
         };
     }
 }

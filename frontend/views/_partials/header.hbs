@@ -14,9 +14,6 @@
                 <a class="nav-link" href="/">Home <span class="sr-only"></span></a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/file-upload/">File Upload</a>
-            </li>
-             <li class="nav-item">
                 <a class="nav-link" href="/email-demo/">Email Demo</a>
             </li>
             <li class="nav-item">
@@ -25,18 +22,35 @@
         </ul>
 
         {{!-- Upload Form --}}
-        <form action="/file-upload/new" class="form-inline my-2 my-lg-0" method="POST" enctype="multipart/form-data">
-            <div class="input-group mb-3">
-                <div class="custom-file">
-                    <input type="file" name="file" class="custom-file-input" id="inputGroupFileUpload">
-                    <label class="custom-file-label" for="inputGroupFileUpload"
-                        aria-describedby="inputGroupFileAddon02">Choose file</label>
+        <div class="">
+            <div class="row">
+                <div class="col-8">
+                    <input type="file" id="file-input" multiple style="display: none;" />
+                    <button class="btn btn-primary" id="select-button"><i class="fas fa-upload"></i></button>
                 </div>
-                <div class="input-group-append">
-                    <button class="input-group-text" id="inputGroupFileAddon02" type="submit"
-                        class="btn">Upload</button>
+                <div class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog"
+                    aria-labelledby="uploadingProgressModal" id="uploadingProgressModal" aria-hidden="true">
+                    <div class="modal-dialog modal-sm">
+                        <div class="modal-content">
+                            <div class="col-12 p-0">
+                                <div class="d-none" id="status-container">
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-striped" id="status-progress-bar"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </form>
+        </div>
     </div>
 </nav>
+
+{{!-- Implemented based on: https://docs.microsoft.com/en-us/azure/storage/blobs/storage-quickstart-blobs-javascript-client-libraries-v10 --}}
+<script>
+    let url = "{{{uploadURL}}}";
+    const containerURL = new azblob.ContainerURL( url,
+        azblob.StorageURL.newPipeline(new azblob.AnonymousCredential));
+    initUploader(containerURL);
+</script>
