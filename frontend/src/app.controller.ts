@@ -22,6 +22,7 @@ export class AppController {
 
     return {
       indexed_videos : transformedVideos,
+      uploadURL: this.appService.getUploadURL()
     };
   }
 
