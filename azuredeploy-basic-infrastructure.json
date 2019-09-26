@@ -27,6 +27,31 @@
             "sku": {
                 "name": "Standard_LRS"
             },
+            "properties": {
+                "cors": {
+                    "corsRules": [
+                        {
+                            "allowedOrigins": [
+                                "*"
+                            ],
+                            "allowedMethods": [
+                                "PUT",
+                                "POST"
+                            ],
+                            "maxAgeInSeconds": 0,
+                            "exposedHeaders": [
+                                "*"
+                            ],
+                            "allowedHeaders": [
+                                "*"
+                            ]
+                        }
+                    ]
+                },
+                "deleteRetentionPolicy": {
+                    "enabled": false
+                }
+            },
             "resources": [{
                     "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
                     "apiVersion": "2019-04-01",
